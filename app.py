@@ -9,7 +9,7 @@ app = Flask(__name__)
 def webhook():
     data = request.json
     print(f"Received webhook data: {data}")
-    response = requests.post('https://webhook.site/5966340c-fbfb-470e-ad66-ef392ea121e5', json=data)
+    response = requests.post('https://cldhum-5efb54746e98.herokuapp.com/', json=data)
     print(f"Response from webhook.site: {response.status_code} - {response.text}")
     return jsonify({'message': 'Webhook received and forwarded successfully!', 'data': data}), 200
 
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     flask_thread.start()
 
     curl_command = [
-        'curl', '-X', 'POST', 'http://192.168.1.117:5000/webhook',
+        'curl', '-X', 'POST', 'https://cldhum-5efb54746e98.herokuapp.com/',
         '-H', 'Content-Type: application/json',
         '-d', '{"key1":"value1", "key2":"value2"}'
     ]
