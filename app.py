@@ -4,7 +4,7 @@ import requests
 app = Flask(__name__)
 
 # URL to forward data to (if applicable)
-FORWARD_URL = 'https://eu-openapi.milesight.com'  # Update this if you need to forward data
+FORWARD_URL = 'https://console.milesight.com/application/settings/1828388671129153537'  # Update this if you need to forward data
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
