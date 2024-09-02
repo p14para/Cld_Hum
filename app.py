@@ -42,9 +42,11 @@ def add_device():
     else:
         print("Failed to add gateway:", response.status_code, response.text)
 
-if __name__ == '__main__':
-    # Add the device before starting the server
+@app.route('/start', methods=['GET'])
+def start():
     add_device()
+    return jsonify({"status": "Device addition initiated"}), 200
 
+if __name__ == '__main__':
     # Start Flask app
     app.run(debug=True, host='0.0.0.0')
