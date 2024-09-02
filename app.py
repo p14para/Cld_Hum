@@ -13,7 +13,7 @@ def webhook():
 # Function to add a device using the Milesight API
 def add_device():
     # API endpoint URL for adding a device
-    url = "https://milesight.demo.com/device/openapi/V1.0/devices"  # Use the correct base URL
+    url = "https://eu-openapi.milesight.com/device/openapi/v1.0/devices"  # Use the correct base URL
 
     # Your access token
     access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InllYXN0b25lLWRlZmF1bHQta2V5LWlkIn0.eyJncmFudF90eXBlIjoiY2xpZW50X2NyZWRlbnRpYWxzIiwic2NvcGUiOlsib3BlbmFwaSJdLCJjbGllbnRfZXh0Ijp7ImFwcF9pZCI6IjE4MjgzODg2NzExMjkxNTM1MzciLCJ1c2VyX2lkIjoiMTgyODM2NDg4ODQzNTEzMDM2OSIsInNlY3JldF92ZXJzaW9uIjoiMTcyNDc1NjgwMzY3NyJ9LCJleHAiOjE3MjUyOTkyNzMsImF1dGhvcml0aWVzIjpbIlJPTEVfQ0xJRU5UIl0sImp0aSI6ImZlYWZlZmU3LTIzYmUtNDc1NC1iNWU0LWNjYWI1Zjg5MDE4MSIsImNsaWVudF9pZCI6IjYyMTIyZjhmLTYyYTUtNDFhNy1hZDQzLTBlZmE0NTc4MjM4NCIsInRzIjoxNzI1Mjk1NjczNTMxfQ.MTEw6beOM37PmoeA7eq5VQ3vcTFuGYIKPl92e1ynVtCDUTC1MftPdLtG7ZCem1zjWR9LgGa1wfimFpcwJWiI2NAqiohE9eLiuKVNjoMeUDnwBsMXLjtnNEkFwlwzm_JZc3Y8ww4gTEETKNg7JThdTC4AGvaHGPptX8gIlEr-9qc"
