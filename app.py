@@ -102,9 +102,8 @@
 
 #GRAPHICALLY SHOW THE LOG 
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, render_template, jsonify, request
 import logging
-import json
 
 app = Flask(__name__)
 
@@ -113,20 +112,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Store the latest data in a global variable
-latest_data = {"temperature": None, "humidity": None}
-
-# Webhook endpoint to receive data from devices
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    global latest_data
-    data = request.json
-    logger.info("Received data: %s", json.dumps(data))
-    
-    # Update the latest data
-    latest_data["temperature"] = data.get("temperature")
-    latest_data["humidity"] = data.get("humidity")
-    
-    return jsonify({"status": "success"}), 200
+latest_data = {"temperature": None, "humidity": None}  # Default structure
 
 @app.route('/')
 def index():
@@ -136,9 +122,18 @@ def index():
 def data():
     return jsonify(latest_data)
 
-if __name__ == '__main__':
-    # Start Flask app
-    app.run(debug=True, host='0.0.0.0')
+@app.route('/update', methods=['POST'])
+def update():
+    global latest_data
+    data = request.json
+    latest_data = {
+        "temperature": data.get("temperature", None),
+        "humidity": data.get("humidity", None)
+    }
+    logger.info("Received data: %s", latest_data)  # Log the received data
+    return jsonify({"status": "success"}), 200
 
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
 
 
