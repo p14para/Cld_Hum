@@ -119,22 +119,26 @@ app.logger.addHandler(handler)
 # Store the latest data in a global variable
 latest_data = {"value": 0}  # Default structure
 
+# Webhook endpoint to receive data from devices
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    data = request.json
+    app.logger.info("Received data: %s", json.dumps(data))
+    global latest_data
+    latest_data = data
+    return jsonify({"status": "success"}), 200
+
+# Route to serve the HTML page
 @app.route('/')
 def index():
     return render_template('index.html')
 
+# Route to provide data for the client-side script
 @app.route('/data')
 def data():
     return jsonify(latest_data)
 
-@app.route('/update', methods=['POST'])
-def update():
-    global latest_data
-    data = request.json
-    latest_data = data
-    app.logger.info("Received data: %s", json.dumps(data))  # Log the received data
-    return jsonify({"status": "success"}), 200
-
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
 

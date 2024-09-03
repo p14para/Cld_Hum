@@ -4,65 +4,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Data Visualization</title>
-    <style>
-        #chart {
-            width: 100%;
-            height: 500px;
-        }
-    </style>
+    <title>Device Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <h1>Device Data</h1>
-    <canvas id="chart"></canvas>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <canvas id="dataChart" width="400" height="200"></canvas>
     <script>
-        let chart;
-        async function fetchData() {
-            try {
-                const response = await fetch('/data');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                updateChart(data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        }
-
-        function updateChart(data) {
-            if (!chart) {
-                const ctx = document.getElementById('chart').getContext('2d');
-                chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: [new Date().toLocaleTimeString()],
-                        datasets: [{
-                            label: 'Device Data',
-                            data: [data.value],
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            x: { type: 'time', time: { unit: 'minute' } },
-                            y: { beginAtZero: true }
+        const ctx = document.getElementById('dataChart').getContext('2d');
+        const dataChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],  // This will be updated with timestamps
+                datasets: [{
+                    label: 'Device Value',
+                    data: [],  // This will be updated with values
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'minute'
                         }
+                    },
+                    y: {
+                        beginAtZero: true
                     }
-                });
-            } else {
-                chart.data.labels.push(new Date().toLocaleTimeString());
-                chart.data.datasets[0].data.push(data.value);
-                chart.update();
+                }
             }
+        });
+
+        function fetchData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    const now = new Date();
+                    const time = now.toISOString();
+                    dataChart.data.labels.push(time);
+                    dataChart.data.datasets[0].data.push(data.value);
+                    dataChart.update();
+                });
         }
 
         // Fetch data every minute
         setInterval(fetchData, 60000);
-
         // Initial fetch
         fetchData();
     </script>
