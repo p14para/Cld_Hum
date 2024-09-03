@@ -77,8 +77,34 @@
 
 #CODE TO SHOW DATA FROM DEVICES TO HEROKU CLI heroku logs --tail --app=cldhum
 
-from flask import Flask, request, jsonify
+# from flask import Flask, request, jsonify
+# import logging
+
+# app = Flask(__name__)
+
+# # Configure logging
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
+
+# # Webhook endpoint to receive data from devices
+# @app.route('/webhook', methods=['POST'])
+# def webhook():
+#     data = request.json
+#     logger.info("Received data: %s", data)
+#     return jsonify({"status": "success"}), 200
+
+# if __name__ == '__main__':
+#     # Start Flask app
+#     app.run(debug=True, host='0.0.0.0')
+
+#-------------------------------------------------------------------------------------------------------------------
+
+
+#GRAPHICALLY SHOW THE LOG 
+
+from flask import Flask, request, jsonify, render_template
 import logging
+import json
 
 app = Flask(__name__)
 
@@ -86,59 +112,33 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Store the latest data in a global variable
+latest_data = {"temperature": None, "humidity": None}
+
 # Webhook endpoint to receive data from devices
 @app.route('/webhook', methods=['POST'])
 def webhook():
+    global latest_data
     data = request.json
-    logger.info("Received data: %s", data)
+    logger.info("Received data: %s", json.dumps(data))
+    
+    # Update the latest data
+    latest_data["temperature"] = data.get("temperature")
+    latest_data["humidity"] = data.get("humidity")
+    
     return jsonify({"status": "success"}), 200
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/data')
+def data():
+    return jsonify(latest_data)
 
 if __name__ == '__main__':
     # Start Flask app
     app.run(debug=True, host='0.0.0.0')
 
-#-------------------------------------------------------------------------------------------------------------------
-
-
-#GRAPHICALLY SHOW THE LOG 
-
-# from flask import Flask, render_template, jsonify, request
-# import logging
-# from logging.handlers import RotatingFileHandler
-# import json
-
-# app = Flask(__name__)
-
-# # Configure logging
-# handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
-# handler.setLevel(logging.INFO)
-# formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-# handler.setFormatter(formatter)
-# app.logger.addHandler(handler)
-
-# # Store the latest data in a global variable
-# latest_data = {"value": 0}  # Default structure
-
-# # Webhook endpoint to receive data from devices
-# @app.route('/webhook', methods=['POST'])
-# def webhook():
-#     data = request.json
-#     app.logger.info("Received data: %s", json.dumps(data))
-#     global latest_data
-#     latest_data = data
-#     return jsonify({"status": "success"}), 200
-
-# # Route to serve the HTML page
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
-
-# # Route to provide data for the client-side script
-# @app.route('/data')
-# def data():
-#     return jsonify(latest_data)
-
-# if __name__ == '__main__':
-#     app.run(debug=True, host='0.0.0.0')
 
 
