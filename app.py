@@ -33,9 +33,9 @@ def add_device():
 
         # Payload with gateway details
         payload = {
-            "snDevEUI": "6221E1734211",  # Replace with your gateway's snDevEUI
-            "name": "UG65",  # Replace with your gateway name
-            "description": "test",  # Replace with your gateway description
+            "snDevEUI": "6136D22831091009",  # Replace with your gateway's snDevEUI
+            "name": "EM300-TH",  # Replace with your gateway name
+            "description": "",  # Replace with your gateway description
             "project": "cld"  # Replace with your project name
         }
 
