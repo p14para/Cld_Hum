@@ -103,9 +103,18 @@
 #GRAPHICALLY SHOW THE LOG 
 
 from flask import Flask, render_template, jsonify, request
+import logging
+from logging.handlers import RotatingFileHandler
 import json
 
 app = Flask(__name__)
+
+# Configure logging
+handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+app.logger.addHandler(handler)
 
 # Store the latest data in a global variable
 latest_data = {"value": 0}  # Default structure
@@ -123,7 +132,9 @@ def update():
     global latest_data
     data = request.json
     latest_data = data
+    app.logger.info("Received data: %s", json.dumps(data))  # Log the received data
     return jsonify({"status": "success"}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
