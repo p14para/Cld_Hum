@@ -77,23 +77,53 @@
 
 #CODE TO SHOW DATA FROM DEVICES TO HEROKU CLI heroku logs --tail --app=cldhum
 
-from flask import Flask, request, jsonify
-import logging
+# from flask import Flask, request, jsonify
+# import logging
+
+# app = Flask(__name__)
+
+# # Configure logging
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
+
+# # Webhook endpoint to receive data from devices
+# @app.route('/webhook', methods=['POST'])
+# def webhook():
+#     data = request.json
+#     logger.info("Received data: %s", data)
+#     return jsonify({"status": "success"}), 200
+
+# if __name__ == '__main__':
+#     # Start Flask app
+#     app.run(debug=True, host='0.0.0.0')
+
+#-------------------------------------------------------------------------------------------------------------------
+
+
+#GRAPHICALLY SHOW THE LOG 
+
+from flask import Flask, render_template, jsonify
+import requests
 
 app = Flask(__name__)
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Store the latest data in a global variable
+latest_data = {}
 
-# Webhook endpoint to receive data from devices
-@app.route('/webhook', methods=['POST'])
-def webhook():
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/data')
+def data():
+    return jsonify(latest_data)
+
+@app.route('/update', methods=['POST'])
+def update():
+    global latest_data
     data = request.json
-    logger.info("Received data: %s", data)
+    latest_data = data
     return jsonify({"status": "success"}), 200
 
 if __name__ == '__main__':
-    # Start Flask app
     app.run(debug=True, host='0.0.0.0')
-
