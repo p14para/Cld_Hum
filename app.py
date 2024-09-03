@@ -1,3 +1,5 @@
+#CODE TO ADD DEVICES TO THE APPLICATION ON DEVELOPER PLATFORM - NEED TO CHANGE TOKENS AND INFORMATIONS
+
 from flask import Flask, request, jsonify
 import requests
 import logging
