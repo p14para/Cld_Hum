@@ -31,10 +31,18 @@
                         type: 'time',
                         time: {
                             unit: 'minute'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time'
                         }
                     },
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
                     }
                 }
             }
@@ -48,8 +56,16 @@
                     const time = now.toISOString();
                     dataChart.data.labels.push(time);
                     dataChart.data.datasets[0].data.push(data.value);
+
+                    // Optionally limit the number of data points shown
+                    if (dataChart.data.labels.length > 100) {
+                        dataChart.data.labels.shift();
+                        dataChart.data.datasets[0].data.shift();
+                    }
+
                     dataChart.update();
-                });
+                })
+                .catch(error => console.error('Error fetching data:', error));
         }
 
         // Fetch data every minute
