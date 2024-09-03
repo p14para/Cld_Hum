@@ -23,9 +23,9 @@ def webhook():
 def add_device():
     try:
         # API endpoint URL for adding a device
-        url = "https://eu-openapi.milesight.com/device"
+        url = "https://eu-openapi.milesight.com/device/openapi/v1.0/devices"
 
-        # Your access token
+        # Your access token (ensure it's correct and not expired)
         access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InllYXN0b25lLWRlZmF1bHQta2V5LWlkIn0.eyJncmFudF90eXBlIjoiY2xpZW50X2NyZWRlbnRpYWxzIiwic2NvcGUiOlsib3BlbmFwaSJdLCJjbGllbnRfZXh0Ijp7ImFwcF9pZCI6IjE4MjgzODg2NzExMjkxNTM1MzciLCJ1c2VyX2lkIjoiMTgyODM2NDg4ODQzNTEzMDM2OSIsInNlY3JldF92ZXJzaW9uIjoiMTcyNDc1NjgwMzY3NyJ9LCJleHAiOjE3MjUzNTQxODAsImF1dGhvcml0aWVzIjpbIlJPTEVfQ0xJRU5UIl0sImp0aSI6Ijg1M2VkMjkyLWIwODctNDAxNC1hZTVkLWM0YzgwMmJjMTdjZiIsImNsaWVudF9pZCI6IjYyMTIyZjhmLTYyYTUtNDFhNy1hZDQzLTBlZmE0NTc4MjM4NCIsInRzIjoxNzI1MzUwNTgwMjI5fQ.Y56DAZo5AtLpTFI2zeEUBajD0MfI953dciVpqGOy19-jyiX9GZQV2pH4scXkhQ7YiI34I6ZP5_aaI2BbtoviqIgJjbnpY4tZ4LoM1YMRoK5BxcIzyzDQ3Ni2EYpmw1OMuhIyAr2yZe46q8EdBpilvsOnKeGlk1JGn1r2LccAnLw"
 
         # Headers
@@ -47,6 +47,10 @@ def add_device():
 
         # Make the POST request to add the gateway
         response = requests.post(url, headers=headers, json=payload)
+
+        # Log the full response
+        app.logger.debug("Response status code: %s", response.status_code)
+        app.logger.debug("Response body: %s", response.text)
 
         # Check the response
         if response.status_code == 201:
