@@ -102,13 +102,13 @@
 
 #GRAPHICALLY SHOW THE LOG 
 
-from flask import Flask, render_template, jsonify
-import requests
+from flask import Flask, render_template, jsonify, request
+import json
 
 app = Flask(__name__)
 
 # Store the latest data in a global variable
-latest_data = {}
+latest_data = {"value": 0}  # Default structure
 
 @app.route('/')
 def index():
