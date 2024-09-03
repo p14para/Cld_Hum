@@ -78,25 +78,22 @@
 #CODE TO SHOW DATA FROM DEVICES TO HEROKU CLI heroku logs --tail --app=cldhum
 
 from flask import Flask, request, jsonify
+import logging
 
 app = Flask(__name__)
 
-# Webhook endpoint to receive and log data from devices
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Webhook endpoint to receive data from devices
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    try:
-        # Get the JSON data sent by the device
-        data = request.json
-
-        # Log the received data
-        app.logger.info("Received data from device: %s", data)
-
-        # Respond with a success message
-        return jsonify({"status": "success"}), 200
-    except Exception as e:
-        app.logger.error("Error processing webhook data: %s", str(e))
-        return jsonify({"status": "error", "message": str(e)}), 500
+    data = request.json
+    logger.info("Received data: %s", data)
+    return jsonify({"status": "success"}), 200
 
 if __name__ == '__main__':
     # Start Flask app
     app.run(debug=True, host='0.0.0.0')
+
