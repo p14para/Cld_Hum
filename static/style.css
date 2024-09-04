@@ -2,59 +2,124 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: url('/static/farm.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: #333;
     display: flex;
     height: 100vh;
-    overflow: hidden;
-}
-
-.sidebar {
-    width: 250px;
-    background: rgba(0, 0, 0, 0.8); /* Dark background with opacity */
-    color: #fff;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+    overflow: hidden; /* Ensure no scrollbars if background is fixed */
     position: relative;
 }
 
-.logo {
-    display: block;
-    margin: 0 auto 20px;
-    max-width: 80%;
-    height: auto;
+/* Background image with overlay */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/static/farm.jpg') no-repeat center center fixed;
+    background-size: cover;
+    opacity: 0.5; /* Adjust this value to make the background fainter */
+    z-index: -1; /* Send the overlay behind the content */
 }
 
-.menu {
-    list-style: none;
+/* Sidebar styling */
+.sidebar {
+    width: 250px;
+    background-color: rgba(75, 83, 32, 0.8); /* Dark olive green with transparency */
+    color: #FFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    padding: 20px;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar h2 {
+    font-size: 1.8em;
+    margin-bottom: 30px;
+    font-weight: 400;
+}
+
+.sidebar ul {
+    list-style-type: none;
     padding: 0;
 }
 
-.menu li {
-    margin: 10px 0;
+.sidebar ul li {
+    margin: 15px 0;
 }
 
-.menu a {
-    color: #fff;
+.sidebar ul li a {
+    color: #FFF;
     text-decoration: none;
     font-size: 1.2em;
-    display: block;
-    padding: 10px;
-    border-radius: 5px;
-    transition: background 0.3s, color 0.3s;
+    transition: color 0.3s;
 }
 
-.menu a:hover {
-    background: #007BFF;
-    color: #fff;
+.sidebar ul li a:hover {
+    color: #8FCB9B; /* Light green */
 }
 
-.main-content {
+/* Content styling */
+.content {
     flex-grow: 1;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container styling */
+.container {
+    text-align: center;
+    z-index: 1; /* Ensure container is above the background image */
+    position: relative; /* Required for z-index */
+}
+
+/* Title styling */
+h1 {
+    font-size: 3em;
+    margin-bottom: 30px;
+    color: #4B5320;
+    font-weight: 300;
+}
+
+/* Card styling */
+.card {
+    background: rgba(255, 248, 220, 0.9); /* Faint beige with slight transparency */
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    margin: 20px;
     padding: 20px;
-    margin-left: 250px; /* Match the sidebar width */
-    background: rgba(255, 255, 255, 0.9); /* Slightly translucent white background */
-    overflow-y: auto;
+    max-width: 300px;
+    display: inline-block;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Card title styling */
+.card h2 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    color: #6B8E23;
+    font-weight: 400;
+}
+
+/* Data styling */
+.data {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #228B22;
+}
+
+/* Unit styling */
+.unit {
+    font-size: 1.2em;
+    color: #8B4513;
+    margin-left: 5px;
+    font-weight: normal;
 }
