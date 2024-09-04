@@ -2,10 +2,10 @@
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #e0e0e0, #ffffff);
+    background: linear-gradient(135deg, #e0e0e0, #ffffff); /* Subtle gradient background */
     color: #333;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
     height: 100vh;
     box-sizing: border-box;
@@ -14,49 +14,7 @@ body {
 .container {
     text-align: center;
     width: 90%;
-    max-width: 1200px;
-    padding: 20px;
-}
-
-/* Navigation Menu */
-nav.main-menu {
-    margin: 20px 0;
-    padding: 10px;
-    background: linear-gradient(135deg, #74ebd5, #acb6e5);
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s ease;
-}
-
-nav.main-menu:hover {
-    background: linear-gradient(135deg, #acb6e5, #74ebd5);
-}
-
-nav.main-menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-}
-
-nav.main-menu li {
-    margin: 0 15px;
-}
-
-nav.main-menu a {
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 1.4em;
-    font-weight: 600;
-    padding: 10px 20px;
-    border-radius: 8px;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
-nav.main-menu a:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #e9ecef;
+    max-width: 800px;
 }
 
 /* Card styling */
@@ -64,7 +22,6 @@ nav.main-menu a:hover {
     background: #ffffff;
     border-radius: 15px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    margin: 20px 0;
     padding: 30px;
     max-width: 600px;
     display: inline-block;
@@ -76,8 +33,8 @@ nav.main-menu a:hover {
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
-.card h2 {
-    font-size: 2.5em;
+.card h1 {
+    font-size: 2.8em;
     margin-bottom: 20px;
     color: #007BFF;
     font-weight: 700;
@@ -100,13 +57,14 @@ nav.main-menu a:hover {
     text-align: center;
 }
 
-.data-item h3 {
+.data-item h2 {
     margin: 0 0 15px;
     color: #343a40;
+    font-size: 1.8em;
 }
 
 .data-value {
-    font-size: 3em;
+    font-size: 4em;
     font-weight: 700;
     color: #007BFF;
 }
@@ -115,12 +73,4 @@ nav.main-menu a:hover {
     font-size: 1.5em;
     color: #6c757d;
     margin-left: 5px;
-}
-
-.option-card {
-    background-color: #e9ecef;
-    color: #343a40;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
