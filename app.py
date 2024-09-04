@@ -100,7 +100,7 @@
 #-------------------------------------------------------------------------------------------------------------------
 
 
-#GRAPHICALLY SHOW THE LOG IN THE HTML PAGE
+#GRAPHICALLY SHOW THE LOG FOR TEMPERATURE AND HUMIDITY IN THE HTML PAGE
 
 from flask import Flask, request, jsonify, render_template
 import logging

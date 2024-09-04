@@ -1,3 +1,5 @@
+// SCRIPT FOR SHOWING TEMPERATURE AND HUMIDITY
+
 document.addEventListener('DOMContentLoaded', function() {
     const temperatureElement = document.getElementById('temperature');
     const humidityElement = document.getElementById('humidity');
