@@ -21,6 +21,29 @@ h1 {
     font-weight: 300;
 }
 
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu-item {
+    display: block;
+    background: #007BFF;
+    color: #fff;
+    padding: 15px 30px;
+    margin: 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.5em;
+    transition: background-color 0.3s ease;
+}
+
+.menu-item:hover {
+    background: #0056b3;
+}
+
+/* Card styling for em300 */
 .card {
     background: #fff;
     border-radius: 12px;
