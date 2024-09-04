@@ -1,4 +1,4 @@
-SCRIPT FOR SHOWING TEMPERATURE AND HUMIDITY
+// SCRIPT FOR SHOWING TEMPERATURE AND HUMIDITY
 
 document.addEventListener('DOMContentLoaded', function() {
     const temperatureElement = document.getElementById('temperature');
@@ -36,9 +36,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch data every second
     setInterval(fetchData, 10000);
 });
-
-
-
-// -----------------------------------------------------------------------------------------------------------------------------
-
 
