@@ -60,107 +60,56 @@ h1 {
 
 /* ----------------------------------------------------------------------------------------------------------------- */
 
-/* Reset and basic styling */
-body, html {
+/* Basic reset and body styling */
+body {
     margin: 0;
-    padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #a2c2e8, #f2f2f2);
     color: #333;
-    height: 100%;
-}
-
-.dashboard {
     display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100vh;
 }
 
-.sidebar {
-    background: #2c3e50;
-    width: 250px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.container {
+    text-align: center;
 }
 
-.sidebar-title {
-    color: #ecf0f1;
-    margin-bottom: 20px;
-    font-size: 1.5em;
-    font-weight: 600;
-}
-
-.sidebar nav ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.sidebar nav ul li {
-    margin: 10px 0;
-}
-
-.sidebar nav ul li a {
-    color: #ecf0f1;
-    text-decoration: none;
-    font-size: 1.1em;
-    padding: 10px 15px;
-    border-radius: 8px;
-    display: block;
-    transition: background-color 0.3s ease;
-}
-
-.sidebar nav ul li a.active, .sidebar nav ul li a:hover {
-    background-color: #34495e;
-}
-
-.main-content {
-    flex: 1;
-    padding: 40px;
-    background: #f4f7f6;
-    overflow-y: auto;
-}
-
-header h1 {
-    font-size: 2.5em;
-    color: #2c3e50;
-    margin-bottom: 20px;
+h1 {
+    font-size: 3em;
+    margin-bottom: 30px;
+    color: #444;
     font-weight: 300;
-}
-
-.cards {
-    display: flex;
-    gap: 20px;
 }
 
 .card {
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    margin: 20px;
     padding: 20px;
-    flex: 1;
+    max-width: 300px;
+    display: inline-block;
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 .card h2 {
     font-size: 1.8em;
     margin-bottom: 15px;
-    color: #2c3e50;
+    color: #333;
     font-weight: 400;
 }
 
 .data {
-    font-size: 3em;
+    font-size: 2.5em;
     font-weight: bold;
-    color: #2980b9; /* Vibrant color for the data */
+    color: #007BFF; /* Vibrant color for the data */
 }
 
 .unit {
@@ -169,3 +118,4 @@ header h1 {
     margin-left: 5px;
     font-weight: normal;
 }
+
