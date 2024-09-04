@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const temperatureElement = document.getElementById('temperature');
     const humidityElement = document.getElementById('humidity');
+    const loadingScreen = document.getElementById('loading-screen');
+    const mainContent = document.getElementById('main-content');
 
     let lastTemperature = null;
     let lastHumidity = null;
@@ -33,4 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fetch data every second
     setInterval(fetchData, 1000);
+
+    // Hide loading screen and show main content when everything is loaded
+    window.addEventListener('load', function() {
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+    });
 });
