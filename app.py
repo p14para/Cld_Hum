@@ -100,7 +100,7 @@
 #-------------------------------------------------------------------------------------------------------------------
 
 
-#GRAPHICALLY SHOW THE LOG 
+#GRAPHICALLY SHOW THE LOG IN THE HTML PAGE
 
 from flask import Flask, request, jsonify, render_template
 import logging
