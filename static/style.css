@@ -18,17 +18,18 @@ body {
     padding: 20px;
 }
 
+/* Navigation Menu */
 nav.main-menu {
     margin: 20px 0;
     padding: 10px;
-    background-color: #343a40;
+    background: linear-gradient(135deg, #74ebd5, #acb6e5);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
 }
 
 nav.main-menu:hover {
-    background-color: #495057;
+    background: linear-gradient(135deg, #acb6e5, #74ebd5);
 }
 
 nav.main-menu ul {
@@ -44,20 +45,21 @@ nav.main-menu li {
 }
 
 nav.main-menu a {
-    color: #fff;
+    color: #ffffff;
     text-decoration: none;
     font-size: 1.4em;
     font-weight: 600;
     padding: 10px 20px;
     border-radius: 8px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 nav.main-menu a:hover {
-    background-color: #495057;
+    background: rgba(255, 255, 255, 0.2);
     color: #e9ecef;
 }
 
+/* Card styling */
 .card {
     background: #ffffff;
     border-radius: 15px;
