@@ -2,12 +2,57 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #8FCB9B, #F5F5DC); /* Green to beige gradient */
+    background: linear-gradient(135deg, #8FCB9B, #F5F5DC);
     color: #333;
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: 250px;
+    background-color: #4B5320; /* Dark olive green */
+    color: #FFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    padding: 20px;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar h2 {
+    font-size: 1.8em;
+    margin-bottom: 30px;
+    font-weight: 400;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
+
+.sidebar ul li a {
+    color: #FFF;
+    text-decoration: none;
+    font-size: 1.2em;
+    transition: color 0.3s;
+}
+
+.sidebar ul li a:hover {
+    color: #8FCB9B; /* Light green */
+}
+
+/* Content styling */
+.content {
+    flex-grow: 1;
+    padding: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
 }
 
 /* Container styling */
@@ -19,13 +64,13 @@ body {
 h1 {
     font-size: 3em;
     margin-bottom: 30px;
-    color: #4B5320; /* Dark olive green */
+    color: #4B5320;
     font-weight: 300;
 }
 
 /* Card styling */
 .card {
-    background: #FFF8DC; /* Cornsilk color */
+    background: #FFF8DC;
     border-radius: 12px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     margin: 20px;
@@ -44,7 +89,7 @@ h1 {
 .card h2 {
     font-size: 1.8em;
     margin-bottom: 15px;
-    color: #6B8E23; /* Olive drab */
+    color: #6B8E23;
     font-weight: 400;
 }
 
@@ -52,13 +97,13 @@ h1 {
 .data {
     font-size: 2.5em;
     font-weight: bold;
-    color: #228B22; /* Forest green */
+    color: #228B22;
 }
 
 /* Unit styling */
 .unit {
     font-size: 1.2em;
-    color: #8B4513; /* Saddle brown */
+    color: #8B4513;
     margin-left: 5px;
     font-weight: normal;
 }
