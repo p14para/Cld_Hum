@@ -139,5 +139,5 @@ def get_data():
     return jsonify(latest_data)
 
 if __name__ == '__main__':
-    # Start Flask app
     app.run(debug=True, host='0.0.0.0')
+
