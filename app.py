@@ -111,30 +111,37 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Store the latest data in a global variable
-latest_data = {"temperature": "N/A", "humidity": "N/A"}
+# Global variables to store the latest temperature and humidity
+latest_data = {"temperature": None, "humidity": None}
 
 # Webhook endpoint to receive data from devices
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    global latest_data
     data = request.json
     logger.info("Received data: %s", data)
-    
-    # Assuming temperature and humidity are keys in the JSON payload
-    latest_data['temperature'] = data.get('temperature', 'N/A')
-    latest_data['humidity'] = data.get('humidity', 'N/A')
+
+    # Extract temperature and humidity from the incoming data
+    if data and 'data' in data and 'payload' in data['data']:
+        payload = data['data']['payload']
+        latest_data['temperature'] = payload.get('temperature')
+        latest_data['humidity'] = payload.get('humidity')
 
     return jsonify({"status": "success"}), 200
 
-# Route to display the data on a webpage
+# Endpoint to serve the HTML page
 @app.route('/')
 def index():
-    return render_template('index.html', temperature=latest_data['temperature'], humidity=latest_data['humidity'])
+    return render_template('index.html')
+
+# Endpoint to get the latest temperature and humidity data
+@app.route('/data', methods=['GET'])
+def get_data():
+    return jsonify(latest_data)
 
 if __name__ == '__main__':
     # Start Flask app
     app.run(debug=True, host='0.0.0.0')
+
 
 
 

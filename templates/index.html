@@ -4,28 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temperature and Humidity</title>
-    <script>
-        // Function to refresh the data on the page every 5 seconds
-        function refreshData() {
-            fetch('/')
-                .then(response => response.text())
-                .then(html => {
-                    document.open();
-                    document.write(html);
-                    document.close();
-                });
-        }
-
-        // Refresh data every 5 seconds
-        // setInterval(refreshData, 5000);
-    </script>
+    <title>Sensor Data</title>
 </head>
 
 <body>
-    <h1>Latest Sensor Data</h1>
-    <p>Temperature: {{ temperature }}</p>
-    <p>Humidity: {{ humidity }}</p>
+    <h1>Live Sensor Data</h1>
+    <p>Temperature: <span id="temperature">N/A</span> °C</p>
+    <p>Humidity: <span id="humidity">N/A</span> %</p>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
 </html>
