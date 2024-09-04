@@ -1,0 +1,48 @@
+/* Basic reset and body styling */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+  padding: 20px;
+  max-width: 300px;
+  display: inline-block;
+}
+
+.card h2 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.data {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.unit {
+  font-size: 1.2em;
+  color: #666;
+  margin-left: 5px;
+}
