@@ -4,14 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Data</title>
-    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+    <title>Sensor Data</title>
 </head>
 
 <body>
-    <h1>Device Data</h1>
-    <p id="temperature">Temperature: N/A</p>
-    <p id="humidity">Humidity: N/A</p>
+    <h1>Sensor Data</h1>
+    <p>Temperature: <span id="temperature">N/A</span></p>
+    <p>Humidity: <span id="humidity">N/A</span></p>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
 </html>
