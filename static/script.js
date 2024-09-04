@@ -1,15 +1,36 @@
-function updateData() {
-    fetch('/data')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('temperature').textContent = data.temperature !== null ? data.temperature : 'N/A';
-            document.getElementById('humidity').textContent = data.humidity !== null ? data.humidity : 'N/A';
-        })
-        .catch(error => console.error('Error fetching data:', error));
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const temperatureElement = document.getElementById('temperature');
+    const humidityElement = document.getElementById('humidity');
 
-// Update data every 5 seconds
-// setInterval(updateData, 5000);
+    let lastTemperature = null;
+    let lastHumidity = null;
 
-// Initial data fetch
-updateData();
+    function fetchData() {
+        fetch('/data')
+            .then(response => response.json())
+            .then(data => {
+                const temperature = data.temperature;
+                const humidity = data.humidity;
+
+                // Update temperature only if valid data is received
+                if (temperature !== null && temperature !== undefined) {
+                    lastTemperature = temperature;
+                    temperatureElement.textContent = temperature;
+                } else if (lastTemperature !== null) {
+                    temperatureElement.textContent = lastTemperature;
+                }
+
+                // Update humidity only if valid data is received
+                if (humidity !== null && humidity !== undefined) {
+                    lastHumidity = humidity;
+                    humidityElement.textContent = humidity;
+                } else if (lastHumidity !== null) {
+                    humidityElement.textContent = lastHumidity;
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Fetch data every second
+    setInterval(fetchData, 1000);
+});
