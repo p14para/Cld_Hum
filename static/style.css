@@ -19,7 +19,7 @@ body::before {
     background: url('/static/farm.jpg') no-repeat center center fixed;
     background-size: cover;
     opacity: 0.5; /* Adjust this value to make the background fainter */
-    z-index: -1; /* Send the overlay behind the content */
+    z-index: -2; /* Send the overlay behind the content */
 }
 
 /* Loading Screen styling */
@@ -67,6 +67,8 @@ body::before {
     justify-content: start;
     padding: 20px;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+    position: relative; /* Ensure it stays in place */
+    z-index: 1; /* Ensure it is above the background image but below the loader */
 }
 
 .sidebar h2 {
