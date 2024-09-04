@@ -124,7 +124,10 @@ def webhook():
     latest_data["temperature"] = data.get("temperature", "N/A")
     latest_data["humidity"] = data.get("humidity", "N/A")
     
-    logger.info("Received data: %s", data)
+    # Log the received temperature and humidity
+    logger.info("Received temperature: %s", latest_data["temperature"])
+    logger.info("Received humidity: %s", latest_data["humidity"])
+    
     return jsonify({"status": "success"}), 200
 
 # Route to serve the HTML page
@@ -139,6 +142,7 @@ def data():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
 
 
 
