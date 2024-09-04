@@ -5,27 +5,51 @@ body {
     background: linear-gradient(135deg, #a2c2e8, #f2f2f2);
     color: #333;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     height: 100vh;
 }
 
 .container {
     text-align: center;
+    width: 90%;
+    max-width: 1200px;
 }
 
-h1 {
-    font-size: 3em;
-    margin-bottom: 30px;
-    color: #444;
-    font-weight: 300;
+nav.main-menu {
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #007BFF;
+    border-radius: 10px;
+}
+
+nav.main-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav.main-menu li {
+    display: inline;
+    margin-right: 15px;
+}
+
+nav.main-menu a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+nav.main-menu a:hover {
+    text-decoration: underline;
 }
 
 .card {
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    margin: 20px;
+    margin: 20px 0;
     padding: 20px;
     max-width: 300px;
     display: inline-block;
