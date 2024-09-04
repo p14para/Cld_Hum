@@ -77,3 +77,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch data every second
     setInterval(fetchData, 1000);
 });
+
