@@ -59,5 +59,5 @@ document.addEventListener('DOMContentLoaded', function() {
     solenoidButton.addEventListener('click', toggleSolenoid);
 
     // Fetch data every second
-    setInterval(fetchData, 1000);
+    // setInterval(fetchData, 1000);
 });
