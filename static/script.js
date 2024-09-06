@@ -81,5 +81,5 @@ document.addEventListener('DOMContentLoaded', function() {
     testButton.addEventListener('click', test);
 
     // Fetch data every second
-    setInterval(fetchData, 1000);
+    // setInterval(fetchData, 1000);
 });
