@@ -102,30 +102,22 @@
 
 #GRAPHICALLY SHOW THE LOG FOR TEMPERATURE AND HUMIDITY IN THE HTML PAGE
 
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO, emit
-import logging
 
 app = Flask(__name__)
-socketio = SocketIO(app)
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+socketio = SocketIO(app, async_mode='eventlet')
 
 # Global variables to store the latest device data
 latest_data = {"temperature": None, "humidity": None}
-
-# Global variables to store the solenoid statuses
 solenoid_status = {"solenoid_1_status": 0, "solenoid_2_status": 0}
 
-# Webhook endpoint to receive data from devices
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
-    logger.info("Received data: %s", data)
-
-    # Extract solenoid status and other data
     if data and 'data' in data and 'payload' in data['data']:
         payload = data['data']['payload']
         solenoid_status['solenoid_1_status'] = int(payload.get('solenoid_1_status', 0))
@@ -138,32 +130,28 @@ def webhook():
 
     return jsonify({"status": "success"}), 200
 
-# Endpoint to serve the HTML page
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Endpoint to toggle solenoid 1 status
 @app.route('/toggle_solenoid_1', methods=['POST'])
 def toggle_solenoid_1():
     solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
     socketio.emit('update_data', {**latest_data, **solenoid_status})
     return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
 
-# Endpoint to toggle solenoid 2 status
 @app.route('/toggle_solenoid_2', methods=['POST'])
 def toggle_solenoid_2():
     solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
     socketio.emit('update_data', {**latest_data, **solenoid_status})
     return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
 
-# Endpoint to log the current device status
 @app.route('/test', methods=['POST'])
 def test():
-    logger.info("Current device status: %s", {"latest_data": latest_data, "solenoid_status": solenoid_status})
     return jsonify({"status": "success"}), 200
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
 
 
