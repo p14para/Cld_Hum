@@ -117,30 +117,6 @@ h1 {
 }
 
 /* Button styling */
-.solenoid-button {
-    font-size: 1.5em;
-    padding: 10px 20px;
-    background-color: #6B8E23;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.solenoid-button:hover {
-    background-color: #8FCB9B;
-}
-
-/* Unit styling */
-.unit {
-    font-size: 1.2em;
-    color: #8B4513;
-    margin-left: 5px;
-    font-weight: normal;
-}
-
-/* Button styling */
 .solenoid-button, .test-button {
     font-size: 1.5em;
     padding: 10px 20px;
@@ -154,4 +130,12 @@ h1 {
 
 .solenoid-button:hover, .test-button:hover {
     background-color: #8FCB9B;
+}
+
+/* Unit styling */
+.unit {
+    font-size: 1.2em;
+    color: #8B4513;
+    margin-left: 5px;
+    font-weight: normal;
 }
