@@ -17,17 +17,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (temperature !== null && temperature !== undefined) {
                     lastTemperature = temperature;
                     temperatureElement.textContent = temperature.toFixed(1);
-                } else if (lastTemperature !== null) {
-                    temperatureElement.textContent = lastTemperature.toFixed(1);
                 }
 
                 if (humidity !== null && humidity !== undefined) {
                     lastHumidity = humidity;
                     humidityElement.textContent = humidity.toFixed(1);
-                } else if (lastHumidity !== null) {
-                    humidityElement.textContent = lastHumidity.toFixed(1);
                 }
-                
+
+                // Update solenoid button text based on status
                 solenoidStatus = data.solenoid_1_status;
                 solenoidButton.textContent = solenoidStatus === 1 ? 'Close' : 'Open';
             })
@@ -36,24 +33,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle Solenoid status
     function toggleSolenoid() {
-        solenoidStatus = solenoidStatus === 1 ? 0 : 1;
-        solenoidButton.textContent = solenoidStatus === 1 ? 'Close' : 'Open';
+        const newStatus = solenoidStatus === 1 ? 0 : 1;
 
-        // Send new status to the server
         fetch('/toggle_solenoid', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ solenoid_1_status: solenoidStatus })
+            body: JSON.stringify({ solenoid_1_status: newStatus })
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Solenoid status updated:', data);
+            if (data.status === 'success') {
+                solenoidStatus = newStatus;  // Update solenoid status locally
+                solenoidButton.textContent = solenoidStatus === 1 ? 'Close' : 'Open';
+                console.log('Solenoid status updated:', data);
+            } else {
+                console.error('Failed to update solenoid status');
+            }
         })
         .catch(error => console.error('Error updating solenoid status:', error));
     }
 
+    // Attach event listener to button
+    solenoidButton.addEventListener('click', toggleSolenoid);
+
     // Fetch data every second
-    // setInterval(fetchData, 1000);
+    setInterval(fetchData, 1000);
 });
