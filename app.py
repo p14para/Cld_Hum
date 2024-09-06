@@ -106,15 +106,10 @@ import eventlet
 eventlet.monkey_patch()
 
 from flask import Flask, request, jsonify, render_template
-from flask_socketio import SocketIO
-import logging
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode='eventlet')
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Global variables to store the latest device data
 latest_data = {"temperature": None, "humidity": None}
@@ -123,7 +118,6 @@ solenoid_status = {"solenoid_1_status": 0, "solenoid_2_status": 0}
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
-    logger.info("Received data: %s", data)
     if data and 'data' in data and 'payload' in data['data']:
         payload = data['data']['payload']
         solenoid_status['solenoid_1_status'] = int(payload.get('solenoid_1_status', 0))
@@ -154,29 +148,10 @@ def toggle_solenoid_2():
 
 @app.route('/test', methods=['POST'])
 def test():
-    # Log the current device status
-    log_data = {"latest_data": latest_data, "solenoid_status": solenoid_status}
-    logger.info("Current device status: %s", log_data)
-
-    # Return success response
-    return jsonify({"status": "success", "log_data": log_data}), 200
-
-@app.route('/conditions')
-def conditions():
-    return render_template('conditions.html')
-
-@app.route('/compuland')
-def compuland():
-    return render_template('compuland.html')
-
-@app.route('/devices')
-def devices():
-    return render_template('devices.html')
+    return jsonify({"status": "success"}), 200
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
-
-
 
 
 
