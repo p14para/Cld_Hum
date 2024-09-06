@@ -111,20 +111,25 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global variables to store the latest data
-latest_data = {"temperature": None, "humidity": None, "solenoid_1_status": 0}
+# Global variables to store the latest device data
+latest_data = {"temperature": None, "humidity": None}
 
-# Webhook to receive data from devices
+# Global variables to store the solenoid statuses
+solenoid_status = {"solenoid_1_status": 0, "solenoid_2_status": 0}
+
+# Webhook endpoint to receive data from devices
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
     logger.info("Received data: %s", data)
-    
+
+    # Extract solenoid status and other data
     if data and 'data' in data and 'payload' in data['data']:
         payload = data['data']['payload']
+        solenoid_status['solenoid_1_status'] = int(payload.get('solenoid_1_status', 0))
+        solenoid_status['solenoid_2_status'] = int(payload.get('solenoid_2_status', 0))
         latest_data['temperature'] = payload.get('temperature')
         latest_data['humidity'] = payload.get('humidity')
-        latest_data['solenoid_1_status'] = payload.get('solenoid_1_status')
 
     return jsonify({"status": "success"}), 200
 
@@ -133,24 +138,24 @@ def webhook():
 def index():
     return render_template('index.html')
 
-# Endpoint to get the latest data
+# Endpoint to get the latest temperature, humidity, and solenoid statuses
 @app.route('/data', methods=['GET'])
 def get_data():
-    return jsonify(latest_data)
+    return jsonify(latest_data | solenoid_status)
 
-# Endpoint to toggle solenoid status
-@app.route('/toggle_solenoid', methods=['POST'])
-def toggle_solenoid():
-    data = request.json
-    new_status = data.get('solenoid_1_status')
-    
-    if new_status is not None:
-        latest_data['solenoid_1_status'] = new_status
-        logger.info(f"Solenoid status updated to: {new_status}")
-        return jsonify({"status": "success", "solenoid_1_status": new_status}), 200
-    else:
-        return jsonify({"status": "error"}), 400
+# Endpoint to toggle solenoid 1 status
+@app.route('/toggle_solenoid_1', methods=['POST'])
+def toggle_solenoid_1():
+    solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
+    return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
+
+# Endpoint to toggle solenoid 2 status
+@app.route('/toggle_solenoid_2', methods=['POST'])
+def toggle_solenoid_2():
+    solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
+    return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
 

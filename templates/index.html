@@ -14,7 +14,7 @@
         <h2>Πίνακας Ελέγχου</h2>
         <ul>
             <li><a href="/">EM300</a></li>
-            <li><a href="#">UC512</a></li> <!-- Changed from Επιλογή 1 to UC512 -->
+            <li><a href="#">UC512</a></li>
             <li><a href="#">Επιλογή 2</a></li>
             <li><a href="#">Επιλογή 3</a></li>
         </ul>
@@ -23,13 +23,6 @@
     <div class="content">
         <div class="container">
             <h1>Πίνακας Δεδομένων Συσκευής</h1>
-
-            <!-- Solenoid Control Card -->
-            <div class="card">
-                <h2>Solenoid Valve 1</h2>
-                <button id="solenoidButton" onclick="toggleSolenoid()">Open</button> <!-- Toggle Button -->
-            </div>
-
             <div class="card">
                 <h2>Θερμοκρασία</h2>
                 <div class="data">
@@ -42,6 +35,18 @@
                 <div class="data">
                     <span id="humidity">N/A</span>
                     <span class="unit">%</span>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Solenoid 1</h2>
+                <div class="data">
+                    <button id="solenoid1-button" class="solenoid-button">Ανοικτή</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Solenoid 2</h2>
+                <div class="data">
+                    <button id="solenoid2-button" class="solenoid-button">Ανοικτή</button>
                 </div>
             </div>
         </div>

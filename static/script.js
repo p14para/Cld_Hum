@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const temperatureElement = document.getElementById('temperature');
     const humidityElement = document.getElementById('humidity');
-    const solenoidButton = document.getElementById('solenoidButton');
-    let solenoidStatus = 0;  // Default to closed
+    const solenoid1Button = document.getElementById('solenoid1-button');
+    const solenoid2Button = document.getElementById('solenoid2-button');
 
     let lastTemperature = null;
     let lastHumidity = null;
@@ -13,51 +13,64 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 const temperature = data.temperature;
                 const humidity = data.humidity;
+                const solenoid1Status = data.solenoid_1_status;
+                const solenoid2Status = data.solenoid_2_status;
 
+                // Update temperature and humidity
                 if (temperature !== null && temperature !== undefined) {
                     lastTemperature = temperature;
                     temperatureElement.textContent = temperature.toFixed(1);
+                } else if (lastTemperature !== null) {
+                    temperatureElement.textContent = lastTemperature.toFixed(1);
                 }
 
                 if (humidity !== null && humidity !== undefined) {
                     lastHumidity = humidity;
                     humidityElement.textContent = humidity.toFixed(1);
+                } else if (lastHumidity !== null) {
+                    humidityElement.textContent = lastHumidity.toFixed(1);
                 }
 
-                // Update solenoid button text based on status
-                solenoidStatus = data.solenoid_1_status;
-                solenoidButton.textContent = solenoidStatus === 1 ? 'Close' : 'Open';
+                // Update solenoid 1 button status
+                if (solenoid1Status === 1) {
+                    solenoid1Button.textContent = 'Ανοικτή';
+                } else {
+                    solenoid1Button.textContent = 'Κλειστή';
+                }
+
+                // Update solenoid 2 button status
+                if (solenoid2Status === 1) {
+                    solenoid2Button.textContent = 'Ανοικτή';
+                } else {
+                    solenoid2Button.textContent = 'Κλειστή';
+                }
             })
             .catch(error => console.error('Error fetching data:', error));
     }
 
-    // Toggle Solenoid status
-    function toggleSolenoid() {
-        const newStatus = solenoidStatus === 1 ? 0 : 1;
-
-        fetch('/toggle_solenoid', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ solenoid_1_status: newStatus })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                solenoidStatus = newStatus;  // Update solenoid status locally
-                solenoidButton.textContent = solenoidStatus === 1 ? 'Close' : 'Open';
-                console.log('Solenoid status updated:', data);
-            } else {
-                console.error('Failed to update solenoid status');
-            }
-        })
-        .catch(error => console.error('Error updating solenoid status:', error));
+    function toggleSolenoid1() {
+        fetch('/toggle_solenoid_1', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                const status = data.solenoid_1_status;
+                solenoid1Button.textContent = status === 1 ? 'Ανοικτή' : 'Κλειστή';
+            })
+            .catch(error => console.error('Error toggling solenoid 1:', error));
     }
 
-    // Attach event listener to button
-    solenoidButton.addEventListener('click', toggleSolenoid);
+    function toggleSolenoid2() {
+        fetch('/toggle_solenoid_2', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                const status = data.solenoid_2_status;
+                solenoid2Button.textContent = status === 1 ? 'Ανοικτή' : 'Κλειστή';
+            })
+            .catch(error => console.error('Error toggling solenoid 2:', error));
+    }
+
+    solenoid1Button.addEventListener('click', toggleSolenoid1);
+    solenoid2Button.addEventListener('click', toggleSolenoid2);
 
     // Fetch data every second
-    // setInterval(fetchData, 1000);
+    setInterval(fetchData, 1000);
 });
