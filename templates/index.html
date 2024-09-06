@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="el">
 
 <head>
@@ -14,7 +14,7 @@
         <h2>Πίνακας Ελέγχου</h2>
         <ul>
             <li><a href="/">EM300</a></li>
-            <li><a href="#">Επιλογή 1</a></li>
+            <li><a href="#">UC512</a></li> <!-- Changed from Επιλογή 1 to UC512 -->
             <li><a href="#">Επιλογή 2</a></li>
             <li><a href="#">Επιλογή 3</a></li>
         </ul>
@@ -23,6 +23,13 @@
     <div class="content">
         <div class="container">
             <h1>Πίνακας Δεδομένων Συσκευής</h1>
+
+            <!-- Solenoid Control Card -->
+            <div class="card">
+                <h2>Solenoid Valve 1</h2>
+                <button id="solenoidButton" onclick="toggleSolenoid()">Open</button> <!-- Toggle Button -->
+            </div>
+
             <div class="card">
                 <h2>Θερμοκρασία</h2>
                 <div class="data">
@@ -41,4 +48,4 @@
     </div>
 </body>
 
-</html> -->
+</html>

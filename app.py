@@ -77,32 +77,7 @@
 
 #CODE TO SHOW DATA FROM DEVICES TO HEROKU CLI heroku logs --tail --app=cldhum
 
-from flask import Flask, request, jsonify
-import logging
-
-app = Flask(__name__)
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Webhook endpoint to receive data from devices
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    data = request.json
-    logger.info("Received data: %s", data)
-    return jsonify({"status": "success"}), 200
-
-if __name__ == '__main__':
-    # Start Flask app
-    app.run(debug=True, host='0.0.0.0')
-
-#-------------------------------------------------------------------------------------------------------------------
-
-
-#GRAPHICALLY SHOW THE LOG FOR TEMPERATURE AND HUMIDITY IN THE HTML PAGE
-
-# from flask import Flask, request, jsonify, render_template
+# from flask import Flask, request, jsonify
 # import logging
 
 # app = Flask(__name__)
@@ -111,32 +86,71 @@ if __name__ == '__main__':
 # logging.basicConfig(level=logging.INFO)
 # logger = logging.getLogger(__name__)
 
-# # Global variables to store the latest temperature and humidity
-# latest_data = {"temperature": None, "humidity": None}
-
 # # Webhook endpoint to receive data from devices
 # @app.route('/webhook', methods=['POST'])
 # def webhook():
 #     data = request.json
 #     logger.info("Received data: %s", data)
-
-#     # Extract temperature and humidity from the incoming data
-#     if data and 'data' in data and 'payload' in data['data']:
-#         payload = data['data']['payload']
-#         latest_data['temperature'] = payload.get('temperature')
-#         latest_data['humidity'] = payload.get('humidity')
-
 #     return jsonify({"status": "success"}), 200
 
-# # Endpoint to serve the HTML page
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
-
-# # Endpoint to get the latest temperature and humidity data
-# @app.route('/data', methods=['GET'])
-# def get_data():
-#     return jsonify(latest_data)
-
 # if __name__ == '__main__':
+#     # Start Flask app
 #     app.run(debug=True, host='0.0.0.0')
+
+#-------------------------------------------------------------------------------------------------------------------
+
+
+#GRAPHICALLY SHOW THE LOG FOR TEMPERATURE AND HUMIDITY IN THE HTML PAGE
+
+from flask import Flask, request, jsonify, render_template
+import logging
+
+app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Global variables to store the latest data
+latest_data = {"temperature": None, "humidity": None, "solenoid_1_status": 0}
+
+# Webhook to receive data from devices
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    data = request.json
+    logger.info("Received data: %s", data)
+    
+    if data and 'data' in data and 'payload' in data['data']:
+        payload = data['data']['payload']
+        latest_data['temperature'] = payload.get('temperature')
+        latest_data['humidity'] = payload.get('humidity')
+        latest_data['solenoid_1_status'] = payload.get('solenoid_1_status')
+
+    return jsonify({"status": "success"}), 200
+
+# Endpoint to serve the HTML page
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Endpoint to get the latest data
+@app.route('/data', methods=['GET'])
+def get_data():
+    return jsonify(latest_data)
+
+# Endpoint to toggle solenoid status
+@app.route('/toggle_solenoid', methods=['POST'])
+def toggle_solenoid():
+    data = request.json
+    new_status = data.get('solenoid_1_status')
+    
+    if new_status is not None:
+        latest_data['solenoid_1_status'] = new_status
+        logger.info(f"Solenoid status updated to: {new_status}")
+        return jsonify({"status": "success", "solenoid_1_status": new_status}), 200
+    else:
+        return jsonify({"status": "error"}), 400
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
+
