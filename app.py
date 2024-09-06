@@ -126,10 +126,17 @@ def webhook():
     logger.info("Received data: %s", data)
     if data and 'data' in data and 'payload' in data['data']:
         payload = data['data']['payload']
-        solenoid_status['solenoid_1_status'] = int(payload.get('solenoid_1_status', 0))
-        solenoid_status['solenoid_2_status'] = int(payload.get('solenoid_2_status', 0))
+        logger.info("Updating payload: %s", payload)
+        # Update the latest data
         latest_data['temperature'] = payload.get('temperature')
         latest_data['humidity'] = payload.get('humidity')
+        
+        # Update the solenoid status
+        solenoid_status['solenoid_1_status'] = int(payload.get('solenoid_1_status', 0))
+        solenoid_status['solenoid_2_status'] = int(payload.get('solenoid_2_status', 0))
+        
+        logger.info("Updated latest_data: %s", latest_data)
+        logger.info("Updated solenoid_status: %s", solenoid_status)
 
         # Emit updated data to all clients
         socketio.emit('update_data', {**latest_data, **solenoid_status})
@@ -163,3 +170,4 @@ def test():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
