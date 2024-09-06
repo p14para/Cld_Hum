@@ -126,15 +126,25 @@ def webhook():
     logger.info("Received data: %s", data)
     if data and 'data' in data and 'payload' in data['data']:
         payload = data['data']['payload']
-        logger.info("Updating payload: %s", payload)
+        logger.info("Payload received: %s", payload)
+        
         # Update the latest data
-        latest_data['temperature'] = payload.get('temperature')
-        latest_data['humidity'] = payload.get('humidity')
+        new_temperature = payload.get('temperature')
+        new_humidity = payload.get('humidity')
+        logger.info("Updating temperature to %s and humidity to %s", new_temperature, new_humidity)
         
-        # Update the solenoid status
-        solenoid_status['solenoid_1_status'] = int(payload.get('solenoid_1_status', 0))
-        solenoid_status['solenoid_2_status'] = int(payload.get('solenoid_2_status', 0))
+        latest_data['temperature'] = new_temperature
+        latest_data['humidity'] = new_humidity
         
+        # Update solenoid status only if present in payload
+        new_solenoid_1_status = int(payload.get('solenoid_1_status', solenoid_status['solenoid_1_status']))
+        new_solenoid_2_status = int(payload.get('solenoid_2_status', solenoid_status['solenoid_2_status']))
+        
+        logger.info("Updating solenoid_1_status to %d and solenoid_2_status to %d", new_solenoid_1_status, new_solenoid_2_status)
+        
+        solenoid_status['solenoid_1_status'] = new_solenoid_1_status
+        solenoid_status['solenoid_2_status'] = new_solenoid_2_status
+
         logger.info("Updated latest_data: %s", latest_data)
         logger.info("Updated solenoid_status: %s", solenoid_status)
 
@@ -150,12 +160,14 @@ def index():
 @app.route('/toggle_solenoid_1', methods=['POST'])
 def toggle_solenoid_1():
     solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
+    logger.info("Toggled solenoid_1_status to %d", solenoid_status['solenoid_1_status'])
     socketio.emit('update_data', {**latest_data, **solenoid_status})
     return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
 
 @app.route('/toggle_solenoid_2', methods=['POST'])
 def toggle_solenoid_2():
     solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
+    logger.info("Toggled solenoid_2_status to %d", solenoid_status['solenoid_2_status'])
     socketio.emit('update_data', {**latest_data, **solenoid_status})
     return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
 
@@ -170,4 +182,5 @@ def test():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
 
