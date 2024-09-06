@@ -103,9 +103,11 @@
 #GRAPHICALLY SHOW THE LOG FOR TEMPERATURE AND HUMIDITY IN THE HTML PAGE
 
 from flask import Flask, request, jsonify, render_template
+from flask_socketio import SocketIO, emit
 import logging
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -131,6 +133,9 @@ def webhook():
         latest_data['temperature'] = payload.get('temperature')
         latest_data['humidity'] = payload.get('humidity')
 
+        # Emit updated data to all clients
+        socketio.emit('update_data', {**latest_data, **solenoid_status})
+
     return jsonify({"status": "success"}), 200
 
 # Endpoint to serve the HTML page
@@ -138,25 +143,18 @@ def webhook():
 def index():
     return render_template('index.html')
 
-# Endpoint to get the latest temperature, humidity, and solenoid statuses
-@app.route('/data', methods=['GET'])
-def get_data():
-    return jsonify(latest_data | solenoid_status)
-
 # Endpoint to toggle solenoid 1 status
 @app.route('/toggle_solenoid_1', methods=['POST'])
 def toggle_solenoid_1():
-    logger.info("Toggling solenoid 1. Current status: %d", solenoid_status['solenoid_1_status'])
     solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
-    logger.info("New solenoid 1 status: %d", solenoid_status['solenoid_1_status'])
+    socketio.emit('update_data', {**latest_data, **solenoid_status})
     return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
 
 # Endpoint to toggle solenoid 2 status
 @app.route('/toggle_solenoid_2', methods=['POST'])
 def toggle_solenoid_2():
-    logger.info("Toggling solenoid 2. Current status: %d", solenoid_status['solenoid_2_status'])
     solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
-    logger.info("New solenoid 2 status: %d", solenoid_status['solenoid_2_status'])
+    socketio.emit('update_data', {**latest_data, **solenoid_status})
     return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
 
 # Endpoint to log the current device status
@@ -166,5 +164,6 @@ def test():
     return jsonify({"status": "success"}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    socketio.run(app, debug=True, host='0.0.0.0')
+
 
