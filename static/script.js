@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let lastTemperature = null;
     let lastHumidity = null;
+    let isDebouncing = false; // For debounce
 
     function fetchData() {
         fetch('/data')
@@ -33,20 +34,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Update solenoid 1 button status
-                if (solenoid1Status === 1) {
-                    solenoid1Button.textContent = 'Κλειστή';
-                } else {
-                    solenoid1Button.textContent = 'Ανοικτή';
-                }
+                solenoid1Button.textContent = solenoid1Status === 1 ? 'Κλειστή' : 'Ανοικτή';
 
                 // Update solenoid 2 button status
-                if (solenoid2Status === 1) {
-                    solenoid2Button.textContent = 'Κλειστή';
-                } else {
-                    solenoid2Button.textContent = 'Ανοικτή';
-                }
+                solenoid2Button.textContent = solenoid2Status === 1 ? 'Κλειστή' : 'Ανοικτή';
             })
             .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function debounce(func, wait) {
+        return function(...args) {
+            if (isDebouncing) return;
+            isDebouncing = true;
+            setTimeout(() => {
+                func(...args);
+                isDebouncing = false;
+            }, wait);
+        };
     }
 
     function toggleSolenoid1() {
@@ -76,10 +80,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error sending test request:', error));
     }
 
-    solenoid1Button.addEventListener('click', toggleSolenoid1);
-    solenoid2Button.addEventListener('click', toggleSolenoid2);
+    // Debounced toggle functions
+    const debouncedToggleSolenoid1 = debounce(toggleSolenoid1, 300);
+    const debouncedToggleSolenoid2 = debounce(toggleSolenoid2, 300);
+
+    solenoid1Button.addEventListener('click', debouncedToggleSolenoid1);
+    solenoid2Button.addEventListener('click', debouncedToggleSolenoid2);
     testButton.addEventListener('click', test);
 
-    // Fetch data every second
-    setInterval(fetchData, 1000);
+    // Fetch data every 5 seconds
+    setInterval(fetchData, 5000);
 });
