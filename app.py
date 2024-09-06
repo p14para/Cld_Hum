@@ -141,7 +141,7 @@ def index():
 # Endpoint to get the latest temperature, humidity, and solenoid statuses
 @app.route('/data', methods=['GET'])
 def get_data():
-    return jsonify(latest_data | solenoid_status)
+    return jsonify({**latest_data, **solenoid_status})
 
 # Endpoint to toggle solenoid 1 status
 @app.route('/toggle_solenoid_1', methods=['POST'])
@@ -163,6 +163,7 @@ def test():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
 
 
 
