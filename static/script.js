@@ -34,10 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Update solenoid 1 button status
-                solenoid1Button.textContent = solenoid1Status === 1 ? 'Κλειστή' : 'Ανοικτή';
+                solenoid1Button.textContent = solenoid1Status === 1 ? 'Ανοικτή' : 'Κλειστή';
 
                 // Update solenoid 2 button status
-                solenoid2Button.textContent = solenoid2Status === 1 ? 'Κλειστή' : 'Ανοικτή';
+                solenoid2Button.textContent = solenoid2Status === 1 ? 'Ανοικτή' : 'Κλειστή';
             })
             .catch(error => console.error('Error fetching data:', error));
     }
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 const status = data.solenoid_1_status;
-                solenoid1Button.textContent = status === 1 ? 'Κλειστή' : 'Ανοικτή';
+                solenoid1Button.textContent = status === 1 ? 'Ανοικτή' : 'Κλειστή';
             })
             .catch(error => console.error('Error toggling solenoid 1:', error));
     }
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 const status = data.solenoid_2_status;
-                solenoid2Button.textContent = status === 1 ? 'Κλειστή' : 'Ανοικτή';
+                solenoid2Button.textContent = status === 1 ? 'Ανοικτή' : 'Κλειστή';
             })
             .catch(error => console.error('Error toggling solenoid 2:', error));
     }
