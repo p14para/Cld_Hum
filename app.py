@@ -146,13 +146,17 @@ def get_data():
 # Endpoint to toggle solenoid 1 status
 @app.route('/toggle_solenoid_1', methods=['POST'])
 def toggle_solenoid_1():
+    logger.info("Toggling solenoid 1. Current status: %d", solenoid_status['solenoid_1_status'])
     solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
+    logger.info("New solenoid 1 status: %d", solenoid_status['solenoid_1_status'])
     return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
 
 # Endpoint to toggle solenoid 2 status
 @app.route('/toggle_solenoid_2', methods=['POST'])
 def toggle_solenoid_2():
+    logger.info("Toggling solenoid 2. Current status: %d", solenoid_status['solenoid_2_status'])
     solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
+    logger.info("New solenoid 2 status: %d", solenoid_status['solenoid_2_status'])
     return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
 
 # Endpoint to log the current device status
@@ -163,3 +167,4 @@ def test():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
