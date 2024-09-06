@@ -34,16 +34,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Update solenoid 1 button status
                 if (solenoid1Status === 1) {
-                    solenoid1Button.textContent = 'Ανοικτή';
-                } else {
                     solenoid1Button.textContent = 'Κλειστή';
+                } else {
+                    solenoid1Button.textContent = 'Ανοικτή';
                 }
 
                 // Update solenoid 2 button status
                 if (solenoid2Status === 1) {
-                    solenoid2Button.textContent = 'Ανοικτή';
-                } else {
                     solenoid2Button.textContent = 'Κλειστή';
+                } else {
+                    solenoid2Button.textContent = 'Ανοικτή';
                 }
             })
             .catch(error => console.error('Error fetching data:', error));
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 const status = data.solenoid_1_status;
-                solenoid1Button.textContent = status === 1 ? 'Ανοικτή' : 'Κλειστή';
+                solenoid1Button.textContent = status === 1 ? 'Κλειστή' : 'Ανοικτή';
             })
             .catch(error => console.error('Error toggling solenoid 1:', error));
     }
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 const status = data.solenoid_2_status;
-                solenoid2Button.textContent = status === 1 ? 'Ανοικτή' : 'Κλειστή';
+                solenoid2Button.textContent = status === 1 ? 'Κλειστή' : 'Ανοικτή';
             })
             .catch(error => console.error('Error toggling solenoid 2:', error));
     }
@@ -81,5 +81,5 @@ document.addEventListener('DOMContentLoaded', function() {
     testButton.addEventListener('click', test);
 
     // Fetch data every second
-    // setInterval(fetchData, 1000);
+    setInterval(fetchData, 1000);
 });
