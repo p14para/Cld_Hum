@@ -139,3 +139,20 @@ h1 {
     margin-left: 5px;
     font-weight: normal;
 }
+
+/* Button styling */
+.solenoid-button, .test-button {
+    font-size: 1.5em;
+    padding: 10px 20px;
+    background-color: #6B8E23;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.solenoid-button:hover, .test-button:hover {
+    background-color: #8FCB9B;
+}
+

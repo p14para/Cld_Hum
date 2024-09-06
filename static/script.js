@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const humidityElement = document.getElementById('humidity');
     const solenoid1Button = document.getElementById('solenoid1-button');
     const solenoid2Button = document.getElementById('solenoid2-button');
+    const testButton = document.getElementById('test-button');
 
     let lastTemperature = null;
     let lastHumidity = null;
@@ -68,9 +69,17 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error toggling solenoid 2:', error));
     }
 
+    function test() {
+        fetch('/test', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => console.log('Test data logged successfully:', data))
+            .catch(error => console.error('Error sending test request:', error));
+    }
+
     solenoid1Button.addEventListener('click', toggleSolenoid1);
     solenoid2Button.addEventListener('click', toggleSolenoid2);
+    testButton.addEventListener('click', test);
 
     // Fetch data every second
-    // setInterval(fetchData, 1000);
+    setInterval(fetchData, 1000);
 });

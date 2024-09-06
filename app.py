@@ -155,7 +155,14 @@ def toggle_solenoid_2():
     solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
     return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
 
+# Endpoint to log the current device status
+@app.route('/test', methods=['POST'])
+def test():
+    logger.info("Current device status: %s", {"latest_data": latest_data, "solenoid_status": solenoid_status})
+    return jsonify({"status": "success"}), 200
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
 
 
