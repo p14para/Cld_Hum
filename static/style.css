@@ -1,43 +1,20 @@
-/* Basic reset and body styling */
 body {
+    font-family: Arial, sans-serif;
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    position: relative;
+    padding: 0;
 }
 
-/* Background image with overlay */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('/static/farm.jpg') no-repeat center center fixed;
-    background-size: cover;
-    opacity: 0.5;
-    z-index: -1;
-}
-
-/* Sidebar styling */
 .sidebar {
-    width: 250px;
-    background-color: rgba(75, 83, 32, 0.8);
-    color: #FFF;
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    position: fixed;
+    height: 100%;
     padding: 20px;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar h2 {
-    font-size: 1.8em;
-    margin-bottom: 30px;
-    font-weight: 400;
+    margin-top: 0;
 }
 
 .sidebar ul {
@@ -46,96 +23,41 @@ body::before {
 }
 
 .sidebar ul li {
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
 .sidebar ul li a {
-    color: #FFF;
+    color: #fff;
     text-decoration: none;
-    font-size: 1.2em;
-    transition: color 0.3s;
 }
 
-.sidebar ul li a:hover {
-    color: #8FCB9B;
-}
-
-/* Content styling */
 .content {
-    flex-grow: 1;
-    padding: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Container styling */
-.container {
-    text-align: center;
-    z-index: 1;
-    position: relative;
-}
-
-/* Title styling */
-h1 {
-    font-size: 3em;
-    margin-bottom: 30px;
-    color: #4B5320;
-    font-weight: 300;
-}
-
-/* Card styling */
-.card {
-    background: rgba(255, 248, 220, 0.9);
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    margin: 20px;
+    margin-left: 220px;
     padding: 20px;
-    max-width: 300px;
-    display: inline-block;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-.card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+.container {
+    max-width: 800px;
+    margin: auto;
 }
 
-/* Card title styling */
+.card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
 .card h2 {
-    font-size: 1.8em;
-    margin-bottom: 15px;
-    color: #6B8E23;
-    font-weight: 400;
+    margin-top: 0;
 }
 
-/* Data styling */
 .data {
-    font-size: 2.5em;
-    font-weight: bold;
-    color: #228B22;
-}
-
-/* Button styling */
-.solenoid-button, .test-button {
     font-size: 1.5em;
+}
+
+.solenoid-button {
+    font-size: 1em;
     padding: 10px 20px;
-    background-color: #6B8E23;
-    color: white;
-    border: none;
-    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.solenoid-button:hover, .test-button:hover {
-    background-color: #8FCB9B;
-}
-
-/* Unit styling */
-.unit {
-    font-size: 1.2em;
-    color: #8B4513;
-    margin-left: 5px;
-    font-weight: normal;
 }

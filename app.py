@@ -102,10 +102,15 @@
 
 #GRAPHICALLY SHOW THE LOG FOR TEMPERATURE AND HUMIDITY IN THE HTML PAGE
 
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, request, jsonify, render_template
+from flask_socketio import SocketIO
 import logging
 
 app = Flask(__name__)
+socketio = SocketIO(app, async_mode='eventlet')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -113,17 +118,12 @@ logger = logging.getLogger(__name__)
 
 # Global variables to store the latest device data
 latest_data = {"temperature": None, "humidity": None}
-
-# Global variables to store the solenoid statuses
 solenoid_status = {"solenoid_1_status": 0, "solenoid_2_status": 0}
 
-# Webhook endpoint to receive data from devices
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
     logger.info("Received data: %s", data)
-
-    # Extract solenoid status and other data
     if data and 'data' in data and 'payload' in data['data']:
         payload = data['data']['payload']
         solenoid_status['solenoid_1_status'] = int(payload.get('solenoid_1_status', 0))
@@ -131,53 +131,50 @@ def webhook():
         latest_data['temperature'] = payload.get('temperature')
         latest_data['humidity'] = payload.get('humidity')
 
+        # Emit updated data to all clients
+        socketio.emit('update_data', {**latest_data, **solenoid_status})
+
     return jsonify({"status": "success"}), 200
 
-# Endpoint to serve the data page
 @app.route('/')
 def index():
-    return render_template('data.html')
+    return render_template('index.html')
 
-# Endpoint to serve the Συνθήκες page
+@app.route('/toggle_solenoid_1', methods=['POST'])
+def toggle_solenoid_1():
+    solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
+    socketio.emit('update_data', {**latest_data, **solenoid_status})
+    return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
+
+@app.route('/toggle_solenoid_2', methods=['POST'])
+def toggle_solenoid_2():
+    solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
+    socketio.emit('update_data', {**latest_data, **solenoid_status})
+    return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
+
+@app.route('/test', methods=['POST'])
+def test():
+    # Log the current device status
+    log_data = {"latest_data": latest_data, "solenoid_status": solenoid_status}
+    logger.info("Current device status: %s", log_data)
+
+    # Return success response
+    return jsonify({"status": "success", "log_data": log_data}), 200
+
 @app.route('/conditions')
 def conditions():
     return render_template('conditions.html')
 
-# Endpoint to serve the Compuland Α.Ε. page
 @app.route('/compuland')
 def compuland():
     return render_template('compuland.html')
 
-# Endpoint to serve the Συσκευές page
 @app.route('/devices')
 def devices():
     return render_template('devices.html')
 
-# Endpoint to get the latest temperature, humidity, and solenoid statuses
-@app.route('/data', methods=['GET'])
-def get_data():
-    return jsonify(latest_data | solenoid_status)
-
-# Endpoint to toggle solenoid 1 status
-@app.route('/toggle_solenoid_1', methods=['POST'])
-def toggle_solenoid_1():
-    solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
-    return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
-
-# Endpoint to toggle solenoid 2 status
-@app.route('/toggle_solenoid_2', methods=['POST'])
-def toggle_solenoid_2():
-    solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
-    return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
-
-# Endpoint to log the current device status
-@app.route('/test', methods=['POST'])
-def test():
-    logger.info("Current device status: %s", {"latest_data": latest_data, "solenoid_status": solenoid_status})
-    return jsonify({"status": "success"}), 200
-
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    socketio.run(app, debug=True, host='0.0.0.0')
 
 
 
