@@ -1,4 +1,9 @@
 /* Basic reset and body styling */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -66,7 +71,8 @@ body::before {
     padding: 40px;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Changed to flex-start to allow scrolling */
+    overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
 /* Container styling */
@@ -74,6 +80,8 @@ body::before {
     text-align: center;
     z-index: 1;
     position: relative;
+    max-height: 100%; /* Ensures container respects content overflow */
+    overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
 /* Title styling */
@@ -151,6 +159,7 @@ h1 {
     font-size: 18px;
     line-height: 1.6;
     overflow-y: auto; /* Allow scrolling if content overflows */
+    max-height: 80vh; /* Limit height to make scrolling more evident */
 }
 
 .company-info h1, .company-info h2 {
