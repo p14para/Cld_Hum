@@ -180,7 +180,21 @@ def test():
     # Return success response
     return jsonify({"status": "success", "log_data": log_data}), 200
 
+# New routes for the empty pages
+@app.route('/conditions')
+def conditions():
+    return render_template('conditions.html')
+
+@app.route('/compuland')
+def compuland():
+    return render_template('compuland.html')
+
+@app.route('/devices')
+def devices():
+    return render_template('devices.html')
+
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
 
 
