@@ -4,10 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Συστήματα Compuland - Συνθήκες</title>
+    <title>Συνθήκες</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/script.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
 </head>
 
 <body>
@@ -21,8 +19,69 @@
         </ul>
     </div>
     <div class="content">
-        <!-- Empty content area -->
+        <div class="container">
+            <h1>Διαχείριση Συνθηκών</h1>
+            <form id="trigger-form">
+                <label for="condition_type">Τύπος Συνθήκης:</label>
+                <select id="condition_type" name="condition_type">
+                    <option value="temperature">Θερμοκρασία</option>
+                    <option value="humidity">Υγρασία</option>
+                    <option value="time">Ώρα</option>
+                </select>
+                <label for="condition_value">Τιμή Συνθήκης:</label>
+                <input type="text" id="condition_value" name="condition_value" required>
+                <label for="solenoid_action">Πύλη:</label>
+                <select id="solenoid_action" name="solenoid_action">
+                    <option value="solenoid_1">Πύλη 1</option>
+                    <option value="solenoid_2">Πύλη 2</option>
+                </select>
+                <label for="action_value">Ενέργεια:</label>
+                <select id="action_value" name="action_value">
+                    <option value="0">Κλείσιμο</option>
+                    <option value="1">Άνοιγμα</option>
+                </select>
+                <button type="submit">Προσθήκη Συνθήκης</button>
+            </form>
+            <h2>Υπάρχουσες Συνθήκες</h2>
+            <ul id="trigger-list"></ul>
+        </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('trigger-form');
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+                fetch('/add_trigger', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(Object.fromEntries(formData))
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Trigger added:', data);
+                        loadTriggers();  // Refresh trigger list
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+
+            function loadTriggers() {
+                fetch('/get_triggers')
+                    .then(response => response.json())
+                    .then(data => {
+                        const triggerList = document.getElementById('trigger-list');
+                        triggerList.innerHTML = '';
+                        data.forEach(trigger => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `ID: ${trigger.id}, Type: ${trigger.condition_type}, Value: ${trigger.condition_value}, Solenoid: ${trigger.solenoid_action}, Action: ${trigger.action_value}`;
+                            triggerList.appendChild(listItem);
+                        });
+                    });
+            }
+
+            loadTriggers();  // Initial load
+        });
+    </script>
 </body>
 
 </html>
