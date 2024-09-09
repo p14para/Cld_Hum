@@ -139,3 +139,56 @@ h1 {
     margin-left: 5px;
     font-weight: normal;
 }
+/* Container for the page content */
+.container {
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    max-width: 900px;
+    margin: 50px auto;
+}
+
+/* Styling for the company information section */
+.company-info {
+    text-align: left;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    color: #333;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* Styling the company logo */
+.company-logo {
+    display: block;
+    margin: 0 auto 20px;
+    max-width: 200px;
+}
+
+/* Headings */
+.company-info h1, .company-info h2 {
+    text-align: center;
+    color: #4B5320;
+}
+
+.company-info h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.company-info h2 {
+    font-size: 22px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+/* Styling for the list of partners */
+.company-info ul {
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.company-info ul li {
+    margin-bottom: 10px;
+}
