@@ -49,6 +49,7 @@
         .content {
             margin-left: 250px;
             padding: 20px;
+            background-color: #f5f5f5;
         }
 
         .container {
@@ -57,16 +58,17 @@
         }
 
         .conditions-content {
-            background: rgba(255, 248, 220, 0.9);
+            background: #ffffff;
             padding: 20px;
             border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             max-width: 900px;
             margin: 20px auto;
             color: #333;
         }
 
         .conditions-content h1 {
-            font-size: 2.5em;
+            font-size: 2em;
             color: #4B5320;
             margin-bottom: 20px;
         }
@@ -89,7 +91,8 @@
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            width: 100%;
+            width: calc(100% - 22px);
+            box-sizing: border-box;
         }
 
         .conditions-content button {
@@ -105,6 +108,21 @@
 
         .conditions-content button:hover {
             background-color: #8FCB9B;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                box-shadow: none;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 10px;
+            }
         }
     </style>
 </head>
