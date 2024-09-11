@@ -29,8 +29,26 @@
                     <label for="temperature">Θερμοκρασία (°C):</label>
                     <input type="number" id="temperature" name="temperature" step="0.1">
 
+                    <label for="temperature-comparison">Σύγκριση Θερμοκρασίας:</label>
+                    <select id="temperature-comparison" name="temperature-comparison">
+                        <option value="">Επιλογή...</option>
+                        <option value=">">></option>
+                        <option value="<">
+                            << /option>
+                        <option value="=">=</option>
+                    </select>
+
                     <label for="humidity">Υγρασία (%):</label>
                     <input type="number" id="humidity" name="humidity" step="0.1">
+
+                    <label for="humidity-comparison">Σύγκριση Υγρασίας:</label>
+                    <select id="humidity-comparison" name="humidity-comparison">
+                        <option value="">Επιλογή...</option>
+                        <option value=">">></option>
+                        <option value="<">
+                            << /option>
+                        <option value="=">=</option>
+                    </select>
 
                     <label for="time">Ώρα (HH:MM):</label>
                     <input type="time" id="time" name="time">
@@ -61,12 +79,12 @@
             const form = document.getElementById('trigger-form');
 
             // Function to add a new trigger to the list
-            function addTrigger(time, temperature, humidity, solenoidAction) {
+            function addTrigger(time, temperature, temperatureComparison, humidity, humidityComparison, solenoidAction) {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <div class="trigger-details">
-                        <p>Θερμοκρασία: ${temperature} °C</p>
-                        <p>Υγρασία: ${humidity} %</p>
+                        <p>Θερμοκρασία: ${temperature} ${temperatureComparison || ''} °C</p>
+                        <p>Υγρασία: ${humidity} ${humidityComparison || ''} %</p>
                         <p>Ώρα: ${time || 'Κάθε στιγμή'}</p>
                         <p>Ενέργεια Συσκευής: ${solenoidAction}</p>
                         <button class="delete-trigger-button">Διαγραφή</button>
@@ -85,12 +103,14 @@
                 event.preventDefault();
 
                 const temperature = form.temperature.value;
+                const temperatureComparison = form['temperature-comparison'].value;
                 const humidity = form.humidity.value;
+                const humidityComparison = form['humidity-comparison'].value;
                 const time = form.time.value;
                 const solenoidAction = form.solenoid.value;
 
                 if (temperature || humidity || solenoidAction) {
-                    addTrigger(time, temperature, humidity, solenoidAction);
+                    addTrigger(time, temperature, temperatureComparison, humidity, humidityComparison, solenoidAction);
                     form.reset();
                 }
             });
