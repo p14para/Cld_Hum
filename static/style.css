@@ -191,3 +191,106 @@ h1 {
     margin: 0 auto 20px;
     max-width: 200px;
 }
+
+/* Form Container */
+.form-container {
+    background: rgba(255, 248, 220, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    margin: 20px;
+    padding: 20px;
+    max-width: 600px;
+    display: inline-block;
+    text-align: center;
+}
+
+.form-container h2 {
+    color: #6B8E23;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    font-size: 1em;
+    padding: 8px;
+    width: calc(100% - 16px);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Submit Button */
+.submit-button {
+    font-size: 1.5em;
+    padding: 10px 20px;
+    background-color: #6B8E23;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #8FCB9B;
+}
+
+/* Triggers Container */
+.triggers-container {
+    background: rgba(255, 248, 220, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    margin: 20px;
+    padding: 20px;
+    max-width: 600px;
+    display: inline-block;
+    text-align: center;
+}
+
+.triggers-container h2 {
+    color: #6B8E23;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+/* Triggers List */
+#triggers-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#triggers-list li {
+    font-size: 1.2em;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+    position: relative;
+}
+
+.delete-button {
+    font-size: 0.9em;
+    color: #d9534f;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    transition: color 0.3s;
+}
+
+.delete-button:hover {
+    color: #c9302c;
+}

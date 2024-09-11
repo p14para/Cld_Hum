@@ -6,87 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Συνθήκες</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@6.1.1/dist/stomp.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.2/dist/sockjs.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const socket = new SockJS('/socket');
-            const stompClient = Stomp.over(socket);
-
-            stompClient.connect({}, function (frame) {
-                stompClient.subscribe('/topic/update_data', function (message) {
-                    const data = JSON.parse(message.body);
-                    document.getElementById('temperature').innerText = data.temperature || 'N/A';
-                    document.getElementById('humidity').innerText = data.humidity || 'N/A';
-                    document.getElementById('solenoid_1_status').innerText = data.solenoid_1_status ? 'Ανοιχτό' : 'Κλειστό';
-                    document.getElementById('solenoid_2_status').innerText = data.solenoid_2_status ? 'Ανοιχτό' : 'Κλειστό';
-                });
-            });
-
-            document.getElementById('add_time_trigger').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const time = document.getElementById('trigger_time').value;
-                const solenoid = document.getElementById('trigger_solenoid').value;
-                const action = document.querySelector('input[name="trigger_action"]:checked').value;
-                fetch('/add_time_trigger', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ time, solenoid, action })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        updateTriggersList(data.triggers);
-                    });
-            });
-
-            document.getElementById('add_temperature_trigger').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const temperature = document.getElementById('trigger_temperature').value;
-                const solenoid = document.getElementById('trigger_solenoid_temp').value;
-                const action = document.querySelector('input[name="trigger_action_temp"]:checked').value;
-                fetch('/add_temperature_trigger', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ temperature, solenoid, action })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        updateTriggersList(data.triggers);
-                    });
-            });
-
-            document.getElementById('add_humidity_trigger').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const humidity = document.getElementById('trigger_humidity').value;
-                const solenoid = document.getElementById('trigger_solenoid_hum').value;
-                const action = document.querySelector('input[name="trigger_action_hum"]:checked').value;
-                fetch('/add_humidity_trigger', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ humidity, solenoid, action })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        updateTriggersList(data.triggers);
-                    });
-            });
-
-            function updateTriggersList(triggers) {
-                const list = document.getElementById('triggers_list');
-                list.innerHTML = '';
-                triggers.forEach(trigger => {
-                    const li = document.createElement('li');
-                    li.textContent = JSON.stringify(trigger);
-                    list.appendChild(li);
-                });
-            }
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
+    <script src="/static/script.js" defer></script>
 </head>
 
 <body>
     <div class="sidebar">
-        <h2>Μενού</h2>
+        <h2>Πίνακας Ελέγχου</h2>
         <ul>
             <li><a href="/">Πίνακας Ελέγχου</a></li>
             <li><a href="/conditions">Συνθήκες</a></li>
@@ -95,52 +21,70 @@
         </ul>
     </div>
     <div class="content">
-        <h1>Διαχείριση Συνθηκών</h1>
-        <h2>Προσθήκη Χρονοπρογραμματισμένου Trigger</h2>
-        <form id="add_time_trigger">
-            <label for="trigger_time">Ώρα (HH:MM):</label>
-            <input type="text" id="trigger_time" name="trigger_time" required>
-            <br>
-            <label for="trigger_solenoid">Σολυνωτής (1 ή 2):</label>
-            <input type="number" id="trigger_solenoid" name="trigger_solenoid" min="1" max="2" required>
-            <br>
-            <label>Ενέργεια:</label>
-            <input type="radio" id="open_time" name="trigger_action" value="open" checked>
-            <label for="open_time">Άνοιγμα</label>
-            <input type="radio" id="close_time" name="trigger_action" value="close">
-            <label for="close_time">Κλείσιμο</label>
-            <br>
-            <button type="submit">Προσθήκη Trigger</button>
-        </form>
+        <div class="container">
+            <h1>Διαχείριση Σκανδάλης</h1>
 
-        <h2>Προσθήκη Trigger Βασισμένο σε Θερμοκρασία</h2>
-        <form id="add_temperature_trigger">
-            <label for="trigger_temperature">Θερμοκρασία (°C):</label>
-            <input type="number" id="trigger_temperature" name="trigger_temperature" required>
-            <br>
-            <label for="trigger_solenoid_temp">Σολυνωτής (1 ή 2):</label>
-            <input type="number" id="trigger_solenoid_temp" name="trigger_solenoid_temp" min="1" max="2" required>
-            <br>
-            <label>Ενέργεια:</label>
-            <input type="radio" id="open_temp" name="trigger_action_temp" value="open" checked>
-            <label for="open_temp">Άνοιγμα</label>
-            <input type="radio" id="close_temp" name="trigger_action_temp" value="close">
-            <label for="close_temp">Κλείσιμο</label>
-            <br>
-            <button type="submit">Προσθήκη Trigger</button>
-        </form>
+            <!-- Form to add a new trigger -->
+            <div class="form-container">
+                <h2>Προσθήκη Σκανδάλης</h2>
+                <form id="add-trigger-form">
+                    <div class="form-group">
+                        <label for="trigger-time">Χρόνος:</label>
+                        <input type="time" id="trigger-time" name="trigger-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="trigger-temperature">Θερμοκρασία:</label>
+                        <input type="number" id="trigger-temperature" name="trigger-temperature" step="0.1" min="-50"
+                            max="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="trigger-humidity">Υγρασία:</label>
+                        <input type="number" id="trigger-humidity" name="trigger-humidity" step="0.1" min="0" max="100">
+                    </div>
+                    <button type="submit" class="submit-button">Προσθήκη Σκανδάλης</button>
+                </form>
+            </div>
 
-        <h2>Προσθήκη Trigger Βασισμένο σε Υγρασία</h2>
-        <form id="add_humidity_trigger">
-            <label for="trigger_humidity">Υγρασία (%):</label>
-            <input type="number" id="trigger_humidity" name="trigger_humidity" required>
-            <br>
-            <label for="trigger_solenoid_hum">Σολυνωτής (1 ή 2):</label>
-            <input type="number" id="trigger_solenoid_hum" name="trigger_solenoid_hum" min="1" max="2" required>
-            <br>
-            <label>Ενέργεια:</label>
-            <input type="radio" id="open_hum" name="trigger_action_hum" value="open" checked>
-            <label for="open_hum">Άνοιγμα</label>
-            <input type="radio" id="close_hum" name="trigger_action_hum" value="close">
-            <label for="close_hum">Κλείσιμο</label>
-            <
+            <!-- Display active triggers -->
+            <div class="triggers-container">
+                <h2>Ενεργές Σκανδάλες</h2>
+                <ul id="triggers-list">
+                    <!-- Triggers will be added here dynamically -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('add-trigger-form');
+            const triggersList = document.getElementById('triggers-list');
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const time = document.getElementById('trigger-time').value;
+                const temperature = document.getElementById('trigger-temperature').value;
+                const humidity = document.getElementById('trigger-humidity').value;
+
+                if (time || temperature || humidity) {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        Χρόνος: ${time ? time : 'N/A'}, Θερμοκρασία: ${temperature ? temperature : 'N/A'}, Υγρασία: ${humidity ? humidity : 'N/A'}
+                        <button class="delete-button" onclick="removeTrigger(this)">Διαγραφή</button>
+                    `;
+                    triggersList.appendChild(listItem);
+
+                    form.reset();
+                }
+            });
+        });
+
+        function removeTrigger(button) {
+            const triggersList = document.getElementById('triggers-list');
+            triggersList.removeChild(button.parentElement);
+        }
+    </script>
+</body>
+
+</html>
