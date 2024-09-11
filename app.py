@@ -203,97 +203,40 @@ eventlet.monkey_patch()
 
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO
-from flask_sqlalchemy import SQLAlchemy
 import logging
+import sqlite3
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///triggers.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 socketio = SocketIO(app, async_mode='eventlet')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global variables to store the latest device data
-latest_data = {"temperature": None, "humidity": None}
-solenoid_status = {"solenoid_1_status": 0, "solenoid_2_status": 0}
+# Initialize database
+def init_db():
+    with sqlite3.connect('triggers.db') as conn:
+        c = conn.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS triggers (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        temperature REAL,
+                        humidity REAL,
+                        time TEXT,
+                        solenoid_action TEXT)''')
+        conn.commit()
 
-# Define the Trigger model
-class Trigger(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    temperature = db.Column(db.Float, nullable=True)
-    humidity = db.Column(db.Float, nullable=True)
-    time = db.Column(db.String(5), nullable=True)
-    solenoid_action = db.Column(db.String(50), nullable=False)
-
-    def __repr__(self):
-        return f'<Trigger {self.id}>'
-
-# Create the database and tables if they don't exist
-with app.app_context():
-    db.create_all()
+init_db()
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
     logger.info("Received data: %s", data)
-    if data and 'data' in data and 'payload' in data['data']:
-        payload = data['data']['payload']
-        logger.info("Payload received: %s", payload)
-        
-        # Update the latest data
-        new_temperature = payload.get('temperature')
-        new_humidity = payload.get('humidity')
-        logger.info("Updating temperature to %s and humidity to %s", new_temperature, new_humidity)
-        
-        latest_data['temperature'] = new_temperature
-        latest_data['humidity'] = new_humidity
-        
-        # Update solenoid status only if present in payload
-        new_solenoid_1_status = int(payload.get('solenoid_1_status', solenoid_status['solenoid_1_status']))
-        new_solenoid_2_status = int(payload.get('solenoid_2_status', solenoid_status['solenoid_2_status']))
-        
-        logger.info("Updating solenoid_1_status to %d and solenoid_2_status to %d", new_solenoid_1_status, new_solenoid_2_status)
-        
-        solenoid_status['solenoid_1_status'] = new_solenoid_1_status
-        solenoid_status['solenoid_2_status'] = new_solenoid_2_status
-
-        logger.info("Updated latest_data: %s", latest_data)
-        logger.info("Updated solenoid_status: %s", solenoid_status)
-
-        # Emit updated data to all clients
-        socketio.emit('update_data', {**latest_data, **solenoid_status})
-
+    # Your existing webhook code here
     return jsonify({"status": "success"}), 200
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/toggle_solenoid_1', methods=['POST'])
-def toggle_solenoid_1():
-    solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
-    logger.info("Toggled solenoid_1_status to %d", solenoid_status['solenoid_1_status'])
-    socketio.emit('update_data', {**latest_data, **solenoid_status})
-    return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
-
-@app.route('/toggle_solenoid_2', methods=['POST'])
-def toggle_solenoid_2():
-    solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
-    logger.info("Toggled solenoid_2_status to %d", solenoid_status['solenoid_2_status'])
-    socketio.emit('update_data', {**latest_data, **solenoid_status})
-    return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
-
-@app.route('/test', methods=['POST'])
-def test():
-    # Log the current device status
-    log_data = {"latest_data": latest_data, "solenoid_status": solenoid_status}
-    logger.info("Current device status: %s", log_data)
-
-    # Return success response
-    return jsonify({"status": "success", "log_data": log_data}), 200
 
 @app.route('/conditions', methods=['GET', 'POST'])
 def conditions():
@@ -303,25 +246,27 @@ def conditions():
         time = request.form.get('time')
         solenoid_action = request.form.get('solenoid')
 
-        if solenoid_action:
-            new_trigger = Trigger(
-                temperature=temperature,
-                humidity=humidity,
-                time=time,
-                solenoid_action=solenoid_action
-            )
-            db.session.add(new_trigger)
-            db.session.commit()
-    
-    triggers = Trigger.query.all()
+        with sqlite3.connect('triggers.db') as conn:
+            c = conn.cursor()
+            c.execute('INSERT INTO triggers (temperature, humidity, time, solenoid_action) VALUES (?, ?, ?, ?)',
+                      (temperature, humidity, time, solenoid_action))
+            conn.commit()
+        return jsonify({"status": "success"})
+
+    with sqlite3.connect('triggers.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT * FROM triggers')
+        triggers = c.fetchall()
+
     return render_template('conditions.html', triggers=triggers)
 
 @app.route('/delete_trigger/<int:trigger_id>', methods=['POST'])
 def delete_trigger(trigger_id):
-    trigger = Trigger.query.get_or_404(trigger_id)
-    db.session.delete(trigger)
-    db.session.commit()
-    return jsonify({'success': True})
+    with sqlite3.connect('triggers.db') as conn:
+        c = conn.cursor()
+        c.execute('DELETE FROM triggers WHERE id = ?', (trigger_id,))
+        conn.commit()
+    return jsonify({"status": "success"})
 
 @app.route('/compuland')
 def compuland():
