@@ -58,73 +58,136 @@ body::before {
     color: #FFF;
     text-decoration: none;
     font-size: 1.2em;
-    display: block;
+    transition: color 0.3s;
 }
 
 .sidebar ul li a:hover {
-    text-decoration: underline;
+    color: #8FCB9B;
 }
 
-/* Main content area */
+/* Content styling */
 .content {
-    margin-left: 250px;
-    padding: 20px;
-    flex: 1;
-    overflow-y: auto;
+    flex-grow: 1;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Changed to flex-start to allow scrolling */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+/* Container styling */
+.container {
+    text-align: center;
+    z-index: 1;
+    position: relative;
+    max-height: 100%; /* Ensures container respects content overflow */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+/* Title styling */
+h1 {
+    font-size: 3em;
+    margin-bottom: 30px;
+    color: #4B5320;
+    font-weight: 300;
 }
 
 /* Card styling */
 .card {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 248, 220, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     margin: 20px;
     padding: 20px;
-    width: calc(50% - 40px);
+    max-width: 300px;
     display: inline-block;
-    vertical-align: top;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-.card h3 {
-    margin-top: 0;
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
-.card .value {
-    font-size: 2em;
-    color: #333;
+/* Card title styling */
+.card h2 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    color: #6B8E23;
+    font-weight: 400;
+}
+
+/* Data styling */
+.data {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #228B22;
 }
 
 /* Button styling */
-.button {
-    display: inline-block;
-    background-color: #4CAF50;
-    color: white;
+.solenoid-button, .test-button {
+    font-size: 1.5em;
     padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    font-size: 1em;
-    margin: 10px 0;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.button:hover {
-    background-color: #45a049;
-}
-
-/* Company info page */
-.company-info {
-    margin: 20px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.9);
+    background-color: #6B8E23;
+    color: white;
+    border: none;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.solenoid-button:hover, .test-button:hover {
+    background-color: #8FCB9B;
+}
+
+/* Unit styling */
+.unit {
+    font-size: 1.2em;
+    color: #8B4513;
+    margin-left: 5px;
+    font-weight: normal;
+}
+
+/* Additional styling for company page */
+.company-info {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 800px;
+    margin: 20px auto;
+    color: #333;
+    font-size: 18px;
+    line-height: 1.6;
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    max-height: 80vh; /* Limit height to make scrolling more evident */
+}
+
+.company-info h1, .company-info h2 {
+    color: #4B5320;
+}
+
+.company-info h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 
 .company-info h2 {
-    margin-top: 0;
+    font-size: 22px;
+    margin-top: 30px;
+    margin-bottom: 10px;
 }
 
-.company-info p {
-    line-height: 1.6;
+.company-info ul {
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.company-info ul li {
+    margin-bottom: 10px;
+}
+
+.company-logo {
+    display: block;
+    margin: 0 auto 20px;
+    max-width: 200px;
 }
