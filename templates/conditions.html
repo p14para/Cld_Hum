@@ -46,12 +46,12 @@
             <form id="temperature-trigger-form">
                 <label for="temperature">Θερμοκρασία (°C):</label>
                 <input type="number" id="temperature" name="temperature" required>
-                <label for="solenoid">Πύλη:</label>
+                <label for="temperature-solenoid">Πύλη:</label>
                 <select id="temperature-solenoid" name="solenoid">
                     <option value="1">Πύλη 1</option>
                     <option value="2">Πύλη 2</option>
                 </select>
-                <label for="action">Ενέργεια:</label>
+                <label for="temperature-action">Ενέργεια:</label>
                 <select id="temperature-action" name="action">
                     <option value="open">Άνοιγμα</option>
                     <option value="close">Κλείσιμο</option>
@@ -64,22 +64,45 @@
             <form id="humidity-trigger-form">
                 <label for="humidity">Υγρασία (%):</label>
                 <input type="number" id="humidity" name="humidity" required>
-                <label for="solenoid">Πύλη:</label>
+                <label for="humidity-solenoid">Πύλη:</label>
                 <select id="humidity-solenoid" name="solenoid">
                     <option value="1">Πύλη 1</option>
                     <option value="2">Πύλη 2</option>
                 </select>
-                <label for="action">Ενέργεια:</label>
+                <label for="humidity-action">Ενέργεια:</label>
                 <select id="humidity-action" name="action">
                     <option value="open">Άνοιγμα</option>
                     <option value="close">Κλείσιμο</option>
                 </select>
                 <button type="submit">Ορισμός</button>
             </form>
+
+            <!-- Display active triggers -->
+            <h2>Ενεργές Συνθήκες</h2>
+            <ul id="trigger-list">
+                <!-- Active triggers will be displayed here -->
+            </ul>
         </div>
     </div>
 
     <script>
+        // Function to display active triggers
+        function updateTriggerList(triggers) {
+            const triggerList = document.getElementById('trigger-list');
+            triggerList.innerHTML = '';
+            triggers.forEach(trigger => {
+                let listItem = document.createElement('li');
+                if (trigger.type === 'time') {
+                    listItem.textContent = `Ώρα: ${trigger.time}, Πύλη: ${trigger.solenoid}, Ενέργεια: ${trigger.action}`;
+                } else if (trigger.type === 'temperature') {
+                    listItem.textContent = `Θερμοκρασία: ${trigger.temperature}°C, Πύλη: ${trigger.solenoid}, Ενέργεια: ${trigger.action}`;
+                } else if (trigger.type === 'humidity') {
+                    listItem.textContent = `Υγρασία: ${trigger.humidity}%, Πύλη: ${trigger.solenoid}, Ενέργεια: ${trigger.action}`;
+                }
+                triggerList.appendChild(listItem);
+            });
+        }
+
         document.getElementById('time-trigger-form').addEventListener('submit', function (event) {
             event.preventDefault();
             const time = document.getElementById('time').value;
@@ -87,13 +110,11 @@
             const action = document.getElementById('action').value;
             fetch('/add_time_trigger', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ time, solenoid, action }),
-            }).then(response => response.json()).then(data => {
-                console.log('Time trigger set:', data);
-            });
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ time, solenoid, action })
+            })
+                .then(response => response.json())
+                .then(data => updateTriggerList(data.triggers));
         });
 
         document.getElementById('temperature-trigger-form').addEventListener('submit', function (event) {
@@ -103,13 +124,11 @@
             const action = document.getElementById('temperature-action').value;
             fetch('/add_temperature_trigger', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ temperature, solenoid, action }),
-            }).then(response => response.json()).then(data => {
-                console.log('Temperature trigger set:', data);
-            });
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ temperature, solenoid, action })
+            })
+                .then(response => response.json())
+                .then(data => updateTriggerList(data.triggers));
         });
 
         document.getElementById('humidity-trigger-form').addEventListener('submit', function (event) {
@@ -119,14 +138,17 @@
             const action = document.getElementById('humidity-action').value;
             fetch('/add_humidity_trigger', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ humidity, solenoid, action }),
-            }).then(response => response.json()).then(data => {
-                console.log('Humidity trigger set:', data);
-            });
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ humidity, solenoid, action })
+            })
+                .then(response => response.json())
+                .then(data => updateTriggerList(data.triggers));
         });
+
+        // Load initial triggers (if any)
+        fetch('/get_triggers')
+            .then(response => response.json())
+            .then(data => updateTriggerList(data.triggers));
     </script>
 </body>
 
