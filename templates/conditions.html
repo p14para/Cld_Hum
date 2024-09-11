@@ -4,13 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Συστήματα Compuland - Συνθήκες</title>
+    <title>Συνθήκες</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@6.1.1/dist/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.2/dist/sockjs.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const socket = new SockJS('/socket');
+            const stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                stompClient.subscribe('/topic/update_data', function (message) {
+                    const data = JSON.parse(message.body);
+                    document.getElementById('temperature').innerText = data.temperature || 'N/A';
+                    document.getElementById('humidity').innerText = data.humidity || 'N/A';
+                    document.getElementById('solenoid_1_status').innerText = data.solenoid_1_status ? 'Ανοιχτό' : 'Κλειστό';
+                    document.getElementById('solenoid_2_status').innerText = data.solenoid_2_status ? 'Ανοιχτό' : 'Κλειστό';
+                });
+            });
+
+            document.getElementById('add_time_trigger').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const time = document.getElementById('trigger_time').value;
+                const solenoid = document.getElementById('trigger_solenoid').value;
+                const action = document.querySelector('input[name="trigger_action"]:checked').value;
+                fetch('/add_time_trigger', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ time, solenoid, action })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        updateTriggersList(data.triggers);
+                    });
+            });
+
+            document.getElementById('add_temperature_trigger').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const temperature = document.getElementById('trigger_temperature').value;
+                const solenoid = document.getElementById('trigger_solenoid_temp').value;
+                const action = document.querySelector('input[name="trigger_action_temp"]:checked').value;
+                fetch('/add_temperature_trigger', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ temperature, solenoid, action })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        updateTriggersList(data.triggers);
+                    });
+            });
+
+            document.getElementById('add_humidity_trigger').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const humidity = document.getElementById('trigger_humidity').value;
+                const solenoid = document.getElementById('trigger_solenoid_hum').value;
+                const action = document.querySelector('input[name="trigger_action_hum"]:checked').value;
+                fetch('/add_humidity_trigger', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ humidity, solenoid, action })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        updateTriggersList(data.triggers);
+                    });
+            });
+
+            function updateTriggersList(triggers) {
+                const list = document.getElementById('triggers_list');
+                list.innerHTML = '';
+                triggers.forEach(trigger => {
+                    const li = document.createElement('li');
+                    li.textContent = JSON.stringify(trigger);
+                    list.appendChild(li);
+                });
+            }
+        });
+    </script>
 </head>
 
 <body>
     <div class="sidebar">
-        <h2>Πίνακας Ελέγχου</h2>
+        <h2>Μενού</h2>
         <ul>
             <li><a href="/">Πίνακας Ελέγχου</a></li>
             <li><a href="/conditions">Συνθήκες</a></li>
@@ -18,138 +94,53 @@
             <li><a href="/devices">Συσκευές</a></li>
         </ul>
     </div>
-
     <div class="content">
-        <div class="container">
-            <h1>Ορισμός Συνθηκών για Πύλες</h1>
+        <h1>Διαχείριση Συνθηκών</h1>
+        <h2>Προσθήκη Χρονοπρογραμματισμένου Trigger</h2>
+        <form id="add_time_trigger">
+            <label for="trigger_time">Ώρα (HH:MM):</label>
+            <input type="text" id="trigger_time" name="trigger_time" required>
+            <br>
+            <label for="trigger_solenoid">Σολυνωτής (1 ή 2):</label>
+            <input type="number" id="trigger_solenoid" name="trigger_solenoid" min="1" max="2" required>
+            <br>
+            <label>Ενέργεια:</label>
+            <input type="radio" id="open_time" name="trigger_action" value="open" checked>
+            <label for="open_time">Άνοιγμα</label>
+            <input type="radio" id="close_time" name="trigger_action" value="close">
+            <label for="close_time">Κλείσιμο</label>
+            <br>
+            <button type="submit">Προσθήκη Trigger</button>
+        </form>
 
-            <!-- Time-based trigger form -->
-            <h2>Ενεργοποίηση με Ώρα</h2>
-            <form id="time-trigger-form">
-                <label for="time">Ώρα (HH:MM):</label>
-                <input type="time" id="time" name="time" required>
-                <label for="solenoid">Πύλη:</label>
-                <select id="solenoid" name="solenoid">
-                    <option value="1">Πύλη 1</option>
-                    <option value="2">Πύλη 2</option>
-                </select>
-                <label for="action">Ενέργεια:</label>
-                <select id="action" name="action">
-                    <option value="open">Άνοιγμα</option>
-                    <option value="close">Κλείσιμο</option>
-                </select>
-                <button type="submit">Ορισμός</button>
-            </form>
+        <h2>Προσθήκη Trigger Βασισμένο σε Θερμοκρασία</h2>
+        <form id="add_temperature_trigger">
+            <label for="trigger_temperature">Θερμοκρασία (°C):</label>
+            <input type="number" id="trigger_temperature" name="trigger_temperature" required>
+            <br>
+            <label for="trigger_solenoid_temp">Σολυνωτής (1 ή 2):</label>
+            <input type="number" id="trigger_solenoid_temp" name="trigger_solenoid_temp" min="1" max="2" required>
+            <br>
+            <label>Ενέργεια:</label>
+            <input type="radio" id="open_temp" name="trigger_action_temp" value="open" checked>
+            <label for="open_temp">Άνοιγμα</label>
+            <input type="radio" id="close_temp" name="trigger_action_temp" value="close">
+            <label for="close_temp">Κλείσιμο</label>
+            <br>
+            <button type="submit">Προσθήκη Trigger</button>
+        </form>
 
-            <!-- Temperature-based trigger form -->
-            <h2>Ενεργοποίηση με Θερμοκρασία</h2>
-            <form id="temperature-trigger-form">
-                <label for="temperature">Θερμοκρασία (°C):</label>
-                <input type="number" id="temperature" name="temperature" required>
-                <label for="temperature-solenoid">Πύλη:</label>
-                <select id="temperature-solenoid" name="solenoid">
-                    <option value="1">Πύλη 1</option>
-                    <option value="2">Πύλη 2</option>
-                </select>
-                <label for="temperature-action">Ενέργεια:</label>
-                <select id="temperature-action" name="action">
-                    <option value="open">Άνοιγμα</option>
-                    <option value="close">Κλείσιμο</option>
-                </select>
-                <button type="submit">Ορισμός</button>
-            </form>
-
-            <!-- Humidity-based trigger form -->
-            <h2>Ενεργοποίηση με Υγρασία</h2>
-            <form id="humidity-trigger-form">
-                <label for="humidity">Υγρασία (%):</label>
-                <input type="number" id="humidity" name="humidity" required>
-                <label for="humidity-solenoid">Πύλη:</label>
-                <select id="humidity-solenoid" name="solenoid">
-                    <option value="1">Πύλη 1</option>
-                    <option value="2">Πύλη 2</option>
-                </select>
-                <label for="humidity-action">Ενέργεια:</label>
-                <select id="humidity-action" name="action">
-                    <option value="open">Άνοιγμα</option>
-                    <option value="close">Κλείσιμο</option>
-                </select>
-                <button type="submit">Ορισμός</button>
-            </form>
-
-            <!-- Display active triggers -->
-            <h2>Ενεργές Συνθήκες</h2>
-            <ul id="trigger-list">
-                <!-- Active triggers will be displayed here -->
-            </ul>
-        </div>
-    </div>
-
-    <script>
-        // Function to display active triggers
-        function updateTriggerList(triggers) {
-            const triggerList = document.getElementById('trigger-list');
-            triggerList.innerHTML = '';
-            triggers.forEach(trigger => {
-                let listItem = document.createElement('li');
-                if (trigger.type === 'time') {
-                    listItem.textContent = `Ώρα: ${trigger.time}, Πύλη: ${trigger.solenoid}, Ενέργεια: ${trigger.action}`;
-                } else if (trigger.type === 'temperature') {
-                    listItem.textContent = `Θερμοκρασία: ${trigger.temperature}°C, Πύλη: ${trigger.solenoid}, Ενέργεια: ${trigger.action}`;
-                } else if (trigger.type === 'humidity') {
-                    listItem.textContent = `Υγρασία: ${trigger.humidity}%, Πύλη: ${trigger.solenoid}, Ενέργεια: ${trigger.action}`;
-                }
-                triggerList.appendChild(listItem);
-            });
-        }
-
-        document.getElementById('time-trigger-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const time = document.getElementById('time').value;
-            const solenoid = document.getElementById('solenoid').value;
-            const action = document.getElementById('action').value;
-            fetch('/add_time_trigger', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ time, solenoid, action })
-            })
-                .then(response => response.json())
-                .then(data => updateTriggerList(data.triggers));
-        });
-
-        document.getElementById('temperature-trigger-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const temperature = document.getElementById('temperature').value;
-            const solenoid = document.getElementById('temperature-solenoid').value;
-            const action = document.getElementById('temperature-action').value;
-            fetch('/add_temperature_trigger', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ temperature, solenoid, action })
-            })
-                .then(response => response.json())
-                .then(data => updateTriggerList(data.triggers));
-        });
-
-        document.getElementById('humidity-trigger-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const humidity = document.getElementById('humidity').value;
-            const solenoid = document.getElementById('humidity-solenoid').value;
-            const action = document.getElementById('humidity-action').value;
-            fetch('/add_humidity_trigger', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ humidity, solenoid, action })
-            })
-                .then(response => response.json())
-                .then(data => updateTriggerList(data.triggers));
-        });
-
-        // Load initial triggers (if any)
-        fetch('/get_triggers')
-            .then(response => response.json())
-            .then(data => updateTriggerList(data.triggers));
-    </script>
-</body>
-
-</html>
+        <h2>Προσθήκη Trigger Βασισμένο σε Υγρασία</h2>
+        <form id="add_humidity_trigger">
+            <label for="trigger_humidity">Υγρασία (%):</label>
+            <input type="number" id="trigger_humidity" name="trigger_humidity" required>
+            <br>
+            <label for="trigger_solenoid_hum">Σολυνωτής (1 ή 2):</label>
+            <input type="number" id="trigger_solenoid_hum" name="trigger_solenoid_hum" min="1" max="2" required>
+            <br>
+            <label>Ενέργεια:</label>
+            <input type="radio" id="open_hum" name="trigger_action_hum" value="open" checked>
+            <label for="open_hum">Άνοιγμα</label>
+            <input type="radio" id="close_hum" name="trigger_action_hum" value="close">
+            <label for="close_hum">Κλείσιμο</label>
+            <
