@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Συνθήκες</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
-    <script src="/static/conditions.js" defer></script>
 </head>
 
 <body>
@@ -22,66 +22,61 @@
     </div>
     <div class="content">
         <div class="container">
-            <h1>Διαχείριση Συνθηκών</h1>
-
-            <div class="card">
-                <h2>Προσθήκη Συναγερμού</h2>
+            <h1>Συνθήκες</h1>
+            <div class="form-container">
+                <h2>Προσθήκη Συνθήκης</h2>
                 <form id="trigger-form">
-                    <div class="form-group">
-                        <label for="trigger-time">Χρόνος (HH:MM):</label>
-                        <input type="time" id="trigger-time" name="trigger-time" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="trigger-temperature">Θερμοκρασία (°C):</label>
-                        <input type="number" id="trigger-temperature" name="trigger-temperature" step="0.1">
-                    </div>
-                    <div class="form-group">
-                        <label for="trigger-humidity">Υγρασία (%):</label>
-                        <input type="number" id="trigger-humidity" name="trigger-humidity" step="0.1">
-                    </div>
-                    <div class="form-group">
-                        <label for="solenoid-action">Ενέργεια Πύλης:</label>
-                        <select id="solenoid-action" name="solenoid-action" required>
-                            <option value="">Επιλέξτε...</option>
-                            <option value="solenoid_1_open">Ανοίξτε Πύλη 1</option>
-                            <option value="solenoid_1_close">Κλείστε Πύλη 1</option>
-                            <option value="solenoid_2_open">Ανοίξτε Πύλη 2</option>
-                            <option value="solenoid_2_close">Κλείστε Πύλη 2</option>
-                        </select>
-                    </div>
-                    <button type="submit">Προσθήκη Συναγερμού</button>
+                    <label for="temperature">Θερμοκρασία (°C):</label>
+                    <input type="number" id="temperature" name="temperature" step="0.1">
+
+                    <label for="humidity">Υγρασία (%):</label>
+                    <input type="number" id="humidity" name="humidity" step="0.1">
+
+                    <label for="time">Ώρα (HH:MM):</label>
+                    <input type="time" id="time" name="time">
+
+                    <label for="solenoid">Ενέργεια Συσκευής:</label>
+                    <select id="solenoid" name="solenoid">
+                        <option value="">Επιλογή...</option>
+                        <option value="solenoid_1_open">Ανοίξτε Πύλη 1</option>
+                        <option value="solenoid_1_close">Κλείστε Πύλη 1</option>
+                        <option value="solenoid_2_open">Ανοίξτε Πύλη 2</option>
+                        <option value="solenoid_2_close">Κλείστε Πύλη 2</option>
+                    </select>
+
+                    <button type="submit">Προσθήκη Συνθήκης</button>
                 </form>
             </div>
-
-            <div class="card">
-                <h2>Ενεργοί Συναγερμοί</h2>
-                <div id="active-triggers">
-                    <!-- Active triggers will be dynamically inserted here -->
-                </div>
+            <div class="triggers-container">
+                <h2>Ενεργές Συνθήκες</h2>
+                <ul id="triggers-list">
+                    <!-- Dynamic list of triggers will be inserted here -->
+                </ul>
             </div>
         </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const triggersList = document.getElementById('triggers-list');
             const form = document.getElementById('trigger-form');
-            const activeTriggersContainer = document.getElementById('active-triggers');
 
-            // Function to create a new trigger element
-            function createTriggerElement(trigger) {
-                const triggerElement = document.createElement('div');
-                triggerElement.className = 'trigger';
-                triggerElement.innerHTML = `
-                    <p>Χρόνος: ${trigger.time}</p>
-                    <p>Θερμοκρασία: ${trigger.temperature !== undefined ? trigger.temperature + ' °C' : 'Δεν καθορίστηκε'}</p>
-                    <p>Υγρασία: ${trigger.humidity !== undefined ? trigger.humidity + ' %' : 'Δεν καθορίστηκε'}</p>
-                    <p>Ενέργεια Πύλης: ${trigger.action}</p>
-                    <button class="delete-trigger">Διαγραφή</button>
+            // Function to add a new trigger to the list
+            function addTrigger(time, temperature, humidity, solenoidAction) {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="trigger-details">
+                        <p>Θερμοκρασία: ${temperature} °C</p>
+                        <p>Υγρασία: ${humidity} %</p>
+                        <p>Ώρα: ${time || 'Κάθε στιγμή'}</p>
+                        <p>Ενέργεια Συσκευής: ${solenoidAction}</p>
+                        <button class="delete-trigger-button">Διαγραφή</button>
+                    </div>
                 `;
-                activeTriggersContainer.appendChild(triggerElement);
+                triggersList.appendChild(li);
 
-                // Add event listener to the delete button
-                triggerElement.querySelector('.delete-trigger').addEventListener('click', function () {
-                    triggerElement.remove();
+                // Add event listener for delete button
+                li.querySelector('.delete-trigger-button').addEventListener('click', function () {
+                    triggersList.removeChild(li);
                 });
             }
 
@@ -89,21 +84,15 @@
             form.addEventListener('submit', function (event) {
                 event.preventDefault();
 
-                const time = document.getElementById('trigger-time').value;
-                const temperature = document.getElementById('trigger-temperature').value || 'Δεν καθορίστηκε';
-                const humidity = document.getElementById('trigger-humidity').value || 'Δεν καθορίστηκε';
-                const action = document.getElementById('solenoid-action').value;
-                const actionText = document.getElementById('solenoid-action').options[document.getElementById('solenoid-action').selectedIndex].text;
+                const temperature = form.temperature.value;
+                const humidity = form.humidity.value;
+                const time = form.time.value;
+                const solenoidAction = form.solenoid.value;
 
-                const trigger = {
-                    time: time,
-                    temperature: temperature,
-                    humidity: humidity,
-                    action: actionText
-                };
-
-                createTriggerElement(trigger);
-                form.reset();
+                if (temperature || humidity || solenoidAction) {
+                    addTrigger(time, temperature, humidity, solenoidAction);
+                    form.reset();
+                }
             });
         });
     </script>
