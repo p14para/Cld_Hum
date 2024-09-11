@@ -61,6 +61,52 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('trigger-form');
+            const activeTriggersContainer = document.getElementById('active-triggers');
+
+            // Function to create a new trigger element
+            function createTriggerElement(trigger) {
+                const triggerElement = document.createElement('div');
+                triggerElement.className = 'trigger';
+                triggerElement.innerHTML = `
+                    <p>Χρόνος: ${trigger.time}</p>
+                    <p>Θερμοκρασία: ${trigger.temperature !== undefined ? trigger.temperature + ' °C' : 'Δεν καθορίστηκε'}</p>
+                    <p>Υγρασία: ${trigger.humidity !== undefined ? trigger.humidity + ' %' : 'Δεν καθορίστηκε'}</p>
+                    <p>Ενέργεια Πύλης: ${trigger.action}</p>
+                    <button class="delete-trigger">Διαγραφή</button>
+                `;
+                activeTriggersContainer.appendChild(triggerElement);
+
+                // Add event listener to the delete button
+                triggerElement.querySelector('.delete-trigger').addEventListener('click', function () {
+                    triggerElement.remove();
+                });
+            }
+
+            // Handle form submission
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const time = document.getElementById('trigger-time').value;
+                const temperature = document.getElementById('trigger-temperature').value || 'Δεν καθορίστηκε';
+                const humidity = document.getElementById('trigger-humidity').value || 'Δεν καθορίστηκε';
+                const action = document.getElementById('solenoid-action').value;
+                const actionText = document.getElementById('solenoid-action').options[document.getElementById('solenoid-action').selectedIndex].text;
+
+                const trigger = {
+                    time: time,
+                    temperature: temperature,
+                    humidity: humidity,
+                    action: actionText
+                };
+
+                createTriggerElement(trigger);
+                form.reset();
+            });
+        });
+    </script>
 </body>
 
 </html>
