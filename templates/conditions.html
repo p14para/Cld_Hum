@@ -50,19 +50,7 @@
             <div class="triggers-container">
                 <h2>Ενεργές Συνθήκες</h2>
                 <ul id="triggers-list">
-                    {% for trigger in triggers %}
-                    <li>
-                        <div class="trigger-details">
-                            <p>Θερμοκρασία: {{ trigger.temperature }} °C</p>
-                            <p>Υγρασία: {{ trigger.humidity }} %</p>
-                            <p>Ώρα: {{ trigger.time if trigger.time else 'Κάθε στιγμή' }}</p>
-                            <p>Ενέργεια Συσκευής: {{ trigger.solenoid_action }}</p>
-                            <form method="POST" action="/delete_trigger/{{ trigger.id }}" class="delete-trigger-form">
-                                <button type="submit" class="delete-trigger-button">Διαγραφή</button>
-                            </form>
-                        </div>
-                    </li>
-                    {% endfor %}
+                    <!-- Dynamic list of triggers will be inserted here -->
                 </ul>
             </div>
         </div>
@@ -71,6 +59,26 @@
         document.addEventListener('DOMContentLoaded', function () {
             const triggersList = document.getElementById('triggers-list');
             const form = document.getElementById('trigger-form');
+
+            // Function to add a new trigger to the list
+            function addTrigger(time, temperature, humidity, solenoidAction) {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="trigger-details">
+                        <p>Θερμοκρασία: ${temperature} °C</p>
+                        <p>Υγρασία: ${humidity} %</p>
+                        <p>Ώρα: ${time || 'Κάθε στιγμή'}</p>
+                        <p>Ενέργεια Συσκευής: ${solenoidAction}</p>
+                        <button class="delete-trigger-button">Διαγραφή</button>
+                    </div>
+                `;
+                triggersList.appendChild(li);
+
+                // Add event listener for delete button
+                li.querySelector('.delete-trigger-button').addEventListener('click', function () {
+                    triggersList.removeChild(li);
+                });
+            }
 
             // Handle form submission
             form.addEventListener('submit', function (event) {
@@ -82,30 +90,8 @@
                 const solenoidAction = form.solenoid.value;
 
                 if (temperature || humidity || solenoidAction) {
-                    fetch('/conditions', {
-                        method: 'POST',
-                        body: new URLSearchParams({
-                            temperature: temperature,
-                            humidity: humidity,
-                            time: time,
-                            solenoid: solenoidAction
-                        }),
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        }
-                    }).then(response => response.json())
-                        .then(data => {
-                            // Optionally handle response or update UI
-                            location.reload(); // Reload the page to update the list
-                        });
-                }
-            });
-
-            // Handle deletion of triggers
-            triggersList.addEventListener('click', function (event) {
-                if (event.target.classList.contains('delete-trigger-button')) {
-                    const form = event.target.closest('.delete-trigger-form');
-                    form.submit();
+                    addTrigger(time, temperature, humidity, solenoidAction);
+                    form.reset();
                 }
             });
         });
