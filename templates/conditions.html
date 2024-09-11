@@ -7,7 +7,7 @@
     <title>Συνθήκες</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
-    <script src="/static/script.js" defer></script>
+    <script src="/static/conditions.js" defer></script>
 </head>
 
 <body>
@@ -22,69 +22,45 @@
     </div>
     <div class="content">
         <div class="container">
-            <h1>Διαχείριση Σκανδάλης</h1>
+            <h1>Διαχείριση Συνθηκών</h1>
 
-            <!-- Form to add a new trigger -->
-            <div class="form-container">
-                <h2>Προσθήκη Σκανδάλης</h2>
-                <form id="add-trigger-form">
+            <div class="card">
+                <h2>Προσθήκη Συναγερμού</h2>
+                <form id="trigger-form">
                     <div class="form-group">
-                        <label for="trigger-time">Χρόνος:</label>
-                        <input type="time" id="trigger-time" name="trigger-time">
+                        <label for="trigger-time">Χρόνος (HH:MM):</label>
+                        <input type="time" id="trigger-time" name="trigger-time" required>
                     </div>
                     <div class="form-group">
-                        <label for="trigger-temperature">Θερμοκρασία:</label>
-                        <input type="number" id="trigger-temperature" name="trigger-temperature" step="0.1" min="-50"
-                            max="100">
+                        <label for="trigger-temperature">Θερμοκρασία (°C):</label>
+                        <input type="number" id="trigger-temperature" name="trigger-temperature" step="0.1">
                     </div>
                     <div class="form-group">
-                        <label for="trigger-humidity">Υγρασία:</label>
-                        <input type="number" id="trigger-humidity" name="trigger-humidity" step="0.1" min="0" max="100">
+                        <label for="trigger-humidity">Υγρασία (%):</label>
+                        <input type="number" id="trigger-humidity" name="trigger-humidity" step="0.1">
                     </div>
-                    <button type="submit" class="submit-button">Προσθήκη Σκανδάλης</button>
+                    <div class="form-group">
+                        <label for="solenoid-action">Ενέργεια Πύλης:</label>
+                        <select id="solenoid-action" name="solenoid-action" required>
+                            <option value="">Επιλέξτε...</option>
+                            <option value="solenoid_1_open">Ανοίξτε Πύλη 1</option>
+                            <option value="solenoid_1_close">Κλείστε Πύλη 1</option>
+                            <option value="solenoid_2_open">Ανοίξτε Πύλη 2</option>
+                            <option value="solenoid_2_close">Κλείστε Πύλη 2</option>
+                        </select>
+                    </div>
+                    <button type="submit">Προσθήκη Συναγερμού</button>
                 </form>
             </div>
 
-            <!-- Display active triggers -->
-            <div class="triggers-container">
-                <h2>Ενεργές Σκανδάλες</h2>
-                <ul id="triggers-list">
-                    <!-- Triggers will be added here dynamically -->
-                </ul>
+            <div class="card">
+                <h2>Ενεργοί Συναγερμοί</h2>
+                <div id="active-triggers">
+                    <!-- Active triggers will be dynamically inserted here -->
+                </div>
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('add-trigger-form');
-            const triggersList = document.getElementById('triggers-list');
-
-            form.addEventListener('submit', function (event) {
-                event.preventDefault();
-
-                const time = document.getElementById('trigger-time').value;
-                const temperature = document.getElementById('trigger-temperature').value;
-                const humidity = document.getElementById('trigger-humidity').value;
-
-                if (time || temperature || humidity) {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        Χρόνος: ${time ? time : 'N/A'}, Θερμοκρασία: ${temperature ? temperature : 'N/A'}, Υγρασία: ${humidity ? humidity : 'N/A'}
-                        <button class="delete-button" onclick="removeTrigger(this)">Διαγραφή</button>
-                    `;
-                    triggersList.appendChild(listItem);
-
-                    form.reset();
-                }
-            });
-        });
-
-        function removeTrigger(button) {
-            const triggersList = document.getElementById('triggers-list');
-            triggersList.removeChild(button.parentElement);
-        }
-    </script>
 </body>
 
 </html>
