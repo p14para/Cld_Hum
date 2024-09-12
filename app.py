@@ -330,44 +330,41 @@ eventlet.monkey_patch()
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO
 import logging
-from sqlalchemy import create_engine, Column, Integer, Float, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import OperationalError
 
 # Flask app setup
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://u6t8cp76dbgcpj:pc572ed8ec5d57bce5b4080bc59a8b0528c495097f1a19dd839fd0b6331e669f4@ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d22ekdqd6mc7g9'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# SQLAlchemy Core setup
-DATABASE_URL = app.config['SQLALCHEMY_DATABASE_URI']
-engine = create_engine(DATABASE_URL)
-Base = declarative_base()
-
-# Define your models
-class DeviceData(Base):
-    __tablename__ = 'device_data'
-    id = Column(Integer, primary_key=True)
-    temperature = Column(Float, nullable=False)
-    humidity = Column(Float, nullable=False)
-    solenoid_1_status = Column(Integer, nullable=False)
-    solenoid_2_status = Column(Integer, nullable=False)
-    timestamp = Column(DateTime, nullable=False, server_default='NOW()')
-
-# Create tables
-def create_tables():
-    Base.metadata.create_all(engine)
-    logger.info("Tables created successfully")
-
-# Call create_tables
-create_tables()
-
-# Setup Flask-SocketIO
+# Setup Flask-SQLAlchemy
+db = SQLAlchemy(app)
 socketio = SocketIO(app, async_mode='eventlet')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Define your models
+class DeviceData(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    temperature = db.Column(db.Float, nullable=False)
+    humidity = db.Column(db.Float, nullable=False)
+    solenoid_1_status = db.Column(db.Integer, nullable=False)
+    solenoid_2_status = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+
+# Function to create tables
+def create_tables():
+    try:
+        db.create_all()
+        logger.info("Tables created successfully")
+    except OperationalError as e:
+        logger.error(f"An error occurred while creating tables: {e}")
+
+# Call the function to create tables
+create_tables()
 
 # Global variables to store the latest device data
 latest_data = {"temperature": None, "humidity": None}
@@ -405,17 +402,14 @@ def webhook():
         socketio.emit('update_data', {**latest_data, **solenoid_status})
 
         # Save to the database
-        Session = sessionmaker(bind=engine)
-        session = Session()
         device_data = DeviceData(
             temperature=new_temperature,
             humidity=new_humidity,
             solenoid_1_status=new_solenoid_1_status,
             solenoid_2_status=new_solenoid_2_status
         )
-        session.add(device_data)
-        session.commit()
-        session.close()
+        db.session.add(device_data)
+        db.session.commit()
 
     return jsonify({"status": "success"}), 200
 
@@ -481,4 +475,3 @@ def get_triggers():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
-
