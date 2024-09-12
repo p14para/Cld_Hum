@@ -65,64 +65,82 @@
                     <button type="submit">Προσθήκη Συνθήκης</button>
                 </form>
             </div>
+
             <div class="triggers-container">
                 <h2>Ενεργές Συνθήκες</h2>
-                <ul id="triggers-list">
-                    <!-- Dynamic list of triggers will be inserted here -->
-                </ul>
+                <ul id="triggers-list"></ul>
             </div>
         </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const triggersList = document.getElementById('triggers-list');
             const form = document.getElementById('trigger-form');
+            const triggersList = document.getElementById('triggers-list');
+            const socket = io();
 
-            // Function to add a new trigger to the list
-            function addTrigger(time, temperature, temperatureComparison, humidity, humidityComparison, solenoidAction) {
+            function addTriggerToList(trigger) {
                 const li = document.createElement('li');
-                li.innerHTML = `
-                    <div class="trigger-details">
-                        <p>Θερμοκρασία: ${temperature} ${temperatureComparison || ''} °C</p>
-                        <p>Υγρασία: ${humidity} ${humidityComparison || ''} %</p>
-                        <p>Ώρα: ${time || 'Κάθε στιγμή'}</p>
-                        <p>Ενέργεια Συσκευής: ${solenoidAction}</p>
-                        <button class="delete-trigger-button">Διαγραφή</button>
-                    </div>
-                `;
-                triggersList.appendChild(li);
-
-                // Add event listener for delete button
-                li.querySelector('.delete-trigger-button').addEventListener('click', function () {
-                    triggersList.removeChild(li);
+                li.textContent = trigger;
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Διαγραφή';
+                deleteButton.addEventListener('click', function () {
+                    fetch('/delete_trigger', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ trigger })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                li.remove();
+                            }
+                        });
                 });
+                li.appendChild(deleteButton);
+                triggersList.appendChild(li);
             }
 
-            // Handle form submission
             form.addEventListener('submit', function (event) {
                 event.preventDefault();
-
-                const temperature = form.temperature.value;
-                const temperatureComparison = form['temperature-comparison'].value;
-                const humidity = form.humidity.value;
-                const humidityComparison = form['humidity-comparison'].value;
-                const time = form.time.value;
-                const solenoidAction = form.solenoid.value;
-
-                if (temperature || humidity || solenoidAction) {
-                    addTrigger(time, temperature, temperatureComparison, humidity, humidityComparison, solenoidAction);
-                    form.reset();
-                }
+                const formData = new FormData(form);
+                const trigger = {
+                    temperature: formData.get('temperature'),
+                    temperature_comparison: formData.get('temperature-comparison'),
+                    humidity: formData.get('humidity'),
+                    humidity_comparison: formData.get('humidity-comparison'),
+                    time: formData.get('time'),
+                    solenoid: formData.get('solenoid')
+                };
+                fetch('/add_trigger', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(trigger)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            addTriggerToList(`${trigger.temperature} ${trigger.temperature_comparison} °C, ${trigger.humidity} ${trigger.humidity_comparison} %, ${trigger.time}, ${trigger.solenoid}`);
+                            form.reset();
+                        }
+                    });
             });
 
-            // Fetch existing triggers from the server on page load
             fetch('/get_triggers')
                 .then(response => response.json())
                 .then(data => {
                     data.triggers.forEach(trigger => {
-                        addTrigger(trigger.time, trigger.temperature, trigger.temperature_comparison, trigger.humidity, trigger.humidity_comparison, trigger.solenoid_action);
+                        addTriggerToList(trigger);
                     });
                 });
+
+            socket.on('update_data', function (data) {
+                // Handle real-time updates if needed
+                console.log('Updated data:', data);
+            });
         });
     </script>
 </body>
