@@ -20,137 +20,127 @@
             <li><a href="/devices">Συσκευές</a></li>
         </ul>
     </div>
-
     <div class="content">
-        <h1>Διαχείριση Συνθηκών</h1>
-        <form id="trigger-form">
-            <h2>Προσθήκη Συνθήκης</h2>
-            <label for="temperature">Θερμοκρασία:</label>
-            <input type="number" id="temperature" name="temperature" step="0.1">
-            <label for="temperature_comparison">Σύγκριση Θερμοκρασίας:</label>
-            <select id="temperature_comparison" name="temperature_comparison">
-                <option value="greater_than">Μεγαλύτερη από</option>
-                <option value="less_than">Μικρότερη από</option>
-                <option value="equal_to">Ίση με</option>
-            </select>
-            <label for="humidity">Υγρασία:</label>
-            <input type="number" id="humidity" name="humidity" step="0.1">
-            <label for="humidity_comparison">Σύγκριση Υγρασίας:</label>
-            <select id="humidity_comparison" name="humidity_comparison">
-                <option value="greater_than">Μεγαλύτερη από</option>
-                <option value="less_than">Μικρότερη από</option>
-                <option value="equal_to">Ίση με</option>
-            </select>
-            <label for="time">Ώρα:</label>
-            <input type="time" id="time" name="time">
-            <label for="solenoid">Σολένοιντ:</label>
-            <select id="solenoid" name="solenoid">
-                <option value="solenoid_1">Σολένοιντ 1</option>
-                <option value="solenoid_2">Σολένοιντ 2</option>
-            </select>
-            <button type="submit">Προσθήκη Συνθήκης</button>
-        </form>
+        <div class="container">
+            <h1>Συνθήκες</h1>
+            <div class="form-container">
+                <h2>Προσθήκη Συνθήκης</h2>
+                <form id="trigger-form">
+                    <label for="temperature">Θερμοκρασία (°C):</label>
+                    <input type="number" id="temperature" name="temperature" step="0.1">
 
-        <h2>Ενεργές Συνθήκες</h2>
-        <table id="trigger-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Θερμοκρασία</th>
-                    <th>Σύγκριση Θερμοκρασίας</th>
-                    <th>Υγρασία</th>
-                    <th>Σύγκριση Υγρασίας</th>
-                    <th>Ώρα</th>
-                    <th>Σολένοιντ</th>
-                    <th>Ενέργειες</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Trigger rows will be added here dynamically -->
-            </tbody>
-        </table>
+                    <label for="temperature-comparison">Σύγκριση Θερμοκρασίας:</label>
+                    <select id="temperature-comparison" name="temperature-comparison">
+                        <option value="">Επιλογή...</option>
+                        <option value=">">></option>
+                        <option value="<">
+                            << /option>
+                        <option value="=">=</option>
+                    </select>
+
+                    <label for="humidity">Υγρασία (%):</label>
+                    <input type="number" id="humidity" name="humidity" step="0.1">
+
+                    <label for="humidity-comparison">Σύγκριση Υγρασίας:</label>
+                    <select id="humidity-comparison" name="humidity-comparison">
+                        <option value="">Επιλογή...</option>
+                        <option value=">">></option>
+                        <option value="<">
+                            << /option>
+                        <option value="=">=</option>
+                    </select>
+
+                    <label for="time">Ώρα (HH:MM):</label>
+                    <input type="time" id="time" name="time">
+
+                    <label for="solenoid">Ενέργεια Συσκευής:</label>
+                    <select id="solenoid" name="solenoid">
+                        <option value="">Επιλογή...</option>
+                        <option value="solenoid_1_open">Ανοίξτε Πύλη 1</option>
+                        <option value="solenoid_1_close">Κλείστε Πύλη 1</option>
+                        <option value="solenoid_2_open">Ανοίξτε Πύλη 2</option>
+                        <option value="solenoid_2_close">Κλείστε Πύλη 2</option>
+                    </select>
+
+                    <button type="submit">Προσθήκη Συνθήκης</button>
+                </form>
+            </div>
+
+            <div class="triggers-container">
+                <h2>Ενεργές Συνθήκες</h2>
+                <ul id="triggers-list"></ul>
+            </div>
+        </div>
     </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const triggerForm = document.getElementById('trigger-form');
-            const triggerTable = document.getElementById('trigger-table').getElementsByTagName('tbody')[0];
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('trigger-form');
+            const triggersList = document.getElementById('triggers-list');
+            const socket = io();
 
-            function fetchTriggers() {
-                fetch('/get_triggers')
-                    .then(response => response.json())
-                    .then(data => {
-                        const triggers = data.triggers;
-                        triggerTable.innerHTML = ''; // Clear existing table rows
-                        triggers.forEach(trigger => {
-                            const row = triggerTable.insertRow();
-                            row.innerHTML = `
-                                <td>${trigger.id}</td>
-                                <td>${trigger.temperature || '-'}</td>
-                                <td>${trigger.temperature_comparison || '-'}</td>
-                                <td>${trigger.humidity || '-'}</td>
-                                <td>${trigger.humidity_comparison || '-'}</td>
-                                <td>${trigger.time || '-'}</td>
-                                <td>${trigger.solenoid || '-'}</td>
-                                <td><button onclick="deleteTrigger(${trigger.id})">Διαγραφή</button></td>
-                            `;
+            function addTriggerToList(trigger) {
+                const li = document.createElement('li');
+                li.textContent = trigger;
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Διαγραφή';
+                deleteButton.addEventListener('click', function () {
+                    fetch('/delete_trigger', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ trigger })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                li.remove();
+                            }
                         });
-                    });
+                });
+                li.appendChild(deleteButton);
+                triggersList.appendChild(li);
             }
 
-            function addTrigger(data) {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+                const trigger = {
+                    temperature: formData.get('temperature'),
+                    temperature_comparison: formData.get('temperature-comparison'),
+                    humidity: formData.get('humidity'),
+                    humidity_comparison: formData.get('humidity-comparison'),
+                    time: formData.get('time'),
+                    solenoid: formData.get('solenoid')
+                };
                 fetch('/add_trigger', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(trigger)
                 })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            fetchTriggers();
-                            triggerForm.reset();
-                        } else {
-                            alert(`Σφάλμα: ${data.message}`);
+                            addTriggerToList(`${trigger.temperature} ${trigger.temperature_comparison} °C, ${trigger.humidity} ${trigger.humidity_comparison} %, ${trigger.time}, ${trigger.solenoid}`);
+                            form.reset();
                         }
                     });
-            }
-
-            function deleteTrigger(id) {
-                fetch('/delete_trigger', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            fetchTriggers();
-                        } else {
-                            alert(`Σφάλμα: ${data.message}`);
-                        }
-                    });
-            }
-
-            triggerForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                const data = {
-                    temperature: document.getElementById('temperature').value,
-                    temperature_comparison: document.getElementById('temperature_comparison').value,
-                    humidity: document.getElementById('humidity').value,
-                    humidity_comparison: document.getElementById('humidity_comparison').value,
-                    time: document.getElementById('time').value,
-                    solenoid: document.getElementById('solenoid').value
-                };
-
-                addTrigger(data);
             });
 
-            fetchTriggers(); // Initial load of triggers
+            fetch('/get_triggers')
+                .then(response => response.json())
+                .then(data => {
+                    data.triggers.forEach(trigger => {
+                        addTriggerToList(trigger);
+                    });
+                });
+
+            socket.on('update_data', function (data) {
+                // Handle real-time updates if needed
+                console.log('Updated data:', data);
+            });
         });
     </script>
 </body>
