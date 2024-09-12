@@ -457,11 +457,11 @@ def delete_trigger():
 
 @app.route('/get_triggers', methods=['GET'])
 def get_triggers():
-    # Sample triggers
-    triggers = [
-        "25°C > 60% at 14:00, Open Solenoid 1",
-        "22°C < 50% at 18:00, Close Solenoid 2"
-    ]
+    # # Sample triggers
+    # triggers = [
+    #     "25°C > 60% at 14:00, Open Solenoid 1",
+    #     "22°C < 50% at 18:00, Close Solenoid 2"
+    # ]
     logger.info("Fetching triggers: %s", triggers)
     return jsonify({"triggers": triggers})
 
