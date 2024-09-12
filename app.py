@@ -355,6 +355,15 @@ class DeviceData(db.Model):
     solenoid_2_status = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
 
+class Trigger(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    temperature = db.Column(db.Float, nullable=True)
+    temperature_comparison = db.Column(db.String, nullable=True)
+    humidity = db.Column(db.Float, nullable=True)
+    humidity_comparison = db.Column(db.String, nullable=True)
+    time = db.Column(db.Time, nullable=True)
+    solenoid = db.Column(db.String, nullable=True)
+
 # Function to create tables
 def create_tables():
     try:
@@ -461,22 +470,63 @@ def devices():
 def add_trigger():
     data = request.json
     logger.info("Adding trigger: %s", data)
-    # Logic to store the trigger
-    return jsonify({"success": True})
+
+    trigger = Trigger(
+        temperature=data.get('temperature'),
+        temperature_comparison=data.get('temperature_comparison'),
+        humidity=data.get('humidity'),
+        humidity_comparison=data.get('humidity_comparison'),
+        time=data.get('time'),
+        solenoid=data.get('solenoid')
+    )
+
+    try:
+        db.session.add(trigger)
+        db.session.commit()
+        return jsonify({"success": True, "id": trigger.id})
+    except Exception as e:
+        logger.error(f"An error occurred while adding trigger: {e}")
+        db.session.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route('/delete_trigger', methods=['POST'])
 def delete_trigger():
     data = request.json
-    logger.info("Deleting trigger: %s", data)
-    # Logic to delete the trigger
-    return jsonify({"success": True})
+    trigger_id = data.get('id')
+    logger.info("Deleting trigger with ID: %s", trigger_id)
+
+    trigger = Trigger.query.get(trigger_id)
+    if trigger:
+        try:
+            db.session.delete(trigger)
+            db.session.commit()
+            return jsonify({"success": True})
+        except Exception as e:
+            logger.error(f"An error occurred while deleting trigger: {e}")
+            db.session.rollback()
+            return jsonify({"success": False, "message": str(e)}), 500
+    else:
+        return jsonify({"success": False, "message": "Trigger not found"}), 404
 
 @app.route('/get_triggers', methods=['GET'])
 def get_triggers():
-    # Fetch and return the triggers from the database or other storage
+    triggers = Trigger.query.all()
+    trigger_list = [
+        {
+            'id': trigger.id,
+            'temperature': trigger.temperature,
+            'temperature_comparison': trigger.temperature_comparison,
+            'humidity': trigger.humidity,
+            'humidity_comparison': trigger.humidity_comparison,
+            'time': str(trigger.time),
+            'solenoid': trigger.solenoid
+        }
+        for trigger in triggers
+    ]
     logger.info("Fetching triggers")
-    return jsonify({"triggers": []})  # Return an empty list or the actual triggers from your data source
+    return jsonify({"triggers": trigger_list})
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
 
