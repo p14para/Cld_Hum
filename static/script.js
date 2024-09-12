@@ -1,56 +1,110 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
 
-    // Elements for the dashboard
-    const temperatureElement = document.getElementById('temperature');
-    const humidityElement = document.getElementById('humidity');
-    const solenoid1Button = document.getElementById('solenoid1-button');
-    const solenoid2Button = document.getElementById('solenoid2-button');
-    const testButton = document.getElementById('test-button');
+    // Function to fetch data from the server
+    function fetchData() {
+        fetch('/data')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('temperature').innerText = data.temperature || 'N/A';
+                document.getElementById('humidity').innerText = data.humidity || 'N/A';
+                document.getElementById('solenoid_1_status').innerText = data.solenoid_1_status || 'N/A';
+                document.getElementById('solenoid_2_status').innerText = data.solenoid_2_status || 'N/A';
+            });
+    }
 
-    // Update the dashboard with new data
+    // Function to fetch triggers and update the table
+    function fetchTriggers() {
+        fetch('/get_triggers')
+            .then(response => response.json())
+            .then(data => {
+                const triggers = data.triggers;
+                const triggerTable = document.getElementById('trigger-table').getElementsByTagName('tbody')[0];
+                triggerTable.innerHTML = ''; // Clear existing rows
+                triggers.forEach(trigger => {
+                    const row = triggerTable.insertRow();
+                    row.innerHTML = `
+                        <td>${trigger.id}</td>
+                        <td>${trigger.temperature || '-'}</td>
+                        <td>${trigger.temperature_comparison || '-'}</td>
+                        <td>${trigger.humidity || '-'}</td>
+                        <td>${trigger.humidity_comparison || '-'}</td>
+                        <td>${trigger.time || '-'}</td>
+                        <td>${trigger.solenoid || '-'}</td>
+                        <td><button onclick="deleteTrigger(${trigger.id})">Διαγραφή</button></td>
+                    `;
+                });
+            })
+            .catch(error => console.error('Error fetching triggers:', error));
+    }
+
+    // Function to add a new trigger
+    function addTrigger(data) {
+        fetch('/add_trigger', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fetchTriggers(); // Refresh triggers table
+                    document.getElementById('trigger-form').reset(); // Reset form
+                } else {
+                    alert(`Σφάλμα: ${data.message}`);
+                }
+            })
+            .catch(error => console.error('Error adding trigger:', error));
+    }
+
+    // Function to delete a trigger
+    function deleteTrigger(id) {
+        fetch('/delete_trigger', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fetchTriggers(); // Refresh triggers table
+                } else {
+                    alert(`Σφάλμα: ${data.message}`);
+                }
+            })
+            .catch(error => console.error('Error deleting trigger:', error));
+    }
+
+    // Form submission handler
+    const triggerForm = document.getElementById('trigger-form');
+    if (triggerForm) {
+        triggerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = {
+                temperature: document.getElementById('temperature').value || null,
+                temperature_comparison: document.getElementById('temperature_comparison').value || null,
+                humidity: document.getElementById('humidity').value || null,
+                humidity_comparison: document.getElementById('humidity_comparison').value || null,
+                time: document.getElementById('time').value || null,
+                solenoid: document.getElementById('solenoid').value || null
+            };
+            addTrigger(data);
+        });
+    }
+
+    // WebSocket event listener for real-time updates
     socket.on('update_data', function(data) {
-        if (data.temperature !== null) {
-            temperatureElement.textContent = data.temperature;
-        }
-        if (data.humidity !== null) {
-            humidityElement.textContent = data.humidity;
-        }
-        if (data.solenoid_1_status !== undefined) {
-            solenoid1Button.textContent = data.solenoid_1_status === 1 ? 'Ανοικτή' : 'Κλειστή';
-        }
-        if (data.solenoid_2_status !== undefined) {
-            solenoid2Button.textContent = data.solenoid_2_status === 1 ? 'Ανοικτή' : 'Κλειστή';
-        }
+        document.getElementById('temperature').innerText = data.temperature || 'N/A';
+        document.getElementById('humidity').innerText = data.humidity || 'N/A';
+        document.getElementById('solenoid_1_status').innerText = data.solenoid_1_status || 'N/A';
+        document.getElementById('solenoid_2_status').innerText = data.solenoid_2_status || 'N/A';
     });
 
-    // Toggle solenoid 1 status
-    solenoid1Button.addEventListener('click', function() {
-        fetch('/toggle_solenoid_1', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                solenoid1Button.textContent = data.solenoid_1_status === 1 ? 'Ανοικτή' : 'Κλειστή';
-            })
-            .catch(error => console.error('Error toggling solenoid 1:', error));
-    });
-
-    // Toggle solenoid 2 status
-    solenoid2Button.addEventListener('click', function() {
-        fetch('/toggle_solenoid_2', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                solenoid2Button.textContent = data.solenoid_2_status === 1 ? 'Ανοικτή' : 'Κλειστή';
-            })
-            .catch(error => console.error('Error toggling solenoid 2:', error));
-    });
-
-    // Test button
-    testButton.addEventListener('click', function() {
-        fetch('/test', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Test data logged successfully:', data.log_data);
-            })
-            .catch(error => console.error('Error sending test request:', error));
-    });
+    // Initial fetches
+    fetchData();
+    fetchTriggers();
 });
