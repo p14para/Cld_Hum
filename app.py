@@ -363,8 +363,8 @@ def create_tables():
     except OperationalError as e:
         logger.error(f"An error occurred while creating tables: {e}")
 
-# Call the function to create tables
-create_tables()
+# Call the function to create tables, ensure it's done manually if necessary
+# create_tables()
 
 # Global variables to store the latest device data
 latest_data = {"temperature": None, "humidity": None}
@@ -408,8 +408,12 @@ def webhook():
             solenoid_1_status=new_solenoid_1_status,
             solenoid_2_status=new_solenoid_2_status
         )
-        db.session.add(device_data)
-        db.session.commit()
+        try:
+            db.session.add(device_data)
+            db.session.commit()
+        except Exception as e:
+            logger.error(f"An error occurred while saving to the database: {e}")
+            db.session.rollback()
 
     return jsonify({"status": "success"}), 200
 
@@ -475,3 +479,4 @@ def get_triggers():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
