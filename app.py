@@ -331,6 +331,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO
 import logging
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import OperationalError
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://u6t8cp76dbgcpj:pc572ed8ec5d57bce5b4080bc59a8b0528c495097f1a19dd839fd0b6331e669f4@ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d22ekdqd6mc7g9'
@@ -353,6 +354,17 @@ class DeviceData(db.Model):
 
     def __repr__(self):
         return f'<DeviceData {self.id}>'
+
+# Function to create tables
+def create_tables():
+    try:
+        db.create_all()
+        logger.info("Tables created successfully")
+    except OperationalError as e:
+        logger.error(f"An error occurred while creating tables: {e}")
+
+# Call the function to create tables
+create_tables()
 
 # Global variables to store the latest device data
 latest_data = {"temperature": None, "humidity": None}
@@ -457,13 +469,10 @@ def delete_trigger():
 
 @app.route('/get_triggers', methods=['GET'])
 def get_triggers():
-    # # Sample triggers
-    # triggers = [
-    #     "25°C > 60% at 14:00, Open Solenoid 1",
-    #     "22°C < 50% at 18:00, Close Solenoid 2"
-    # ]
-    logger.info("Fetching triggers: %s", triggers)
-    return jsonify({"triggers": triggers})
+    # Fetch and return the triggers from the database or other storage
+    logger.info("Fetching triggers")
+    return jsonify({"triggers": []})  # Return an empty list or the actual triggers from your data source
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
