@@ -102,12 +102,112 @@
 
 #GRAPHICALLY SHOW THE LOG FOR TEMPERATURE AND HUMIDITY IN THE HTML PAGE
 
+# import eventlet
+# eventlet.monkey_patch()
+
+# from flask import Flask, request, jsonify, render_template
+# from flask_socketio import SocketIO
+# import logging
+
+# app = Flask(__name__)
+# socketio = SocketIO(app, async_mode='eventlet')
+
+# # Configure logging
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
+
+# # Global variables to store the latest device data
+# latest_data = {"temperature": None, "humidity": None}
+# solenoid_status = {"solenoid_1_status": 0, "solenoid_2_status": 0}
+
+# @app.route('/webhook', methods=['POST'])
+# def webhook():
+#     data = request.json
+#     logger.info("Received data: %s", data)
+#     if data and 'data' in data and 'payload' in data['data']:
+#         payload = data['data']['payload']
+#         logger.info("Payload received: %s", payload)
+        
+#         # Update the latest data
+#         new_temperature = payload.get('temperature')
+#         new_humidity = payload.get('humidity')
+#         logger.info("Updating temperature to %s and humidity to %s", new_temperature, new_humidity)
+        
+#         latest_data['temperature'] = new_temperature
+#         latest_data['humidity'] = new_humidity
+        
+#         # Update solenoid status only if present in payload
+#         new_solenoid_1_status = int(payload.get('solenoid_1_status', solenoid_status['solenoid_1_status']))
+#         new_solenoid_2_status = int(payload.get('solenoid_2_status', solenoid_status['solenoid_2_status']))
+        
+#         logger.info("Updating solenoid_1_status to %d and solenoid_2_status to %d", new_solenoid_1_status, new_solenoid_2_status)
+        
+#         solenoid_status['solenoid_1_status'] = new_solenoid_1_status
+#         solenoid_status['solenoid_2_status'] = new_solenoid_2_status
+
+#         logger.info("Updated latest_data: %s", latest_data)
+#         logger.info("Updated solenoid_status: %s", solenoid_status)
+
+#         # Emit updated data to all clients
+#         socketio.emit('update_data', {**latest_data, **solenoid_status})
+
+#     return jsonify({"status": "success"}), 200
+
+# @app.route('/')
+# def index():
+#     return render_template('index.html')
+
+# @app.route('/toggle_solenoid_1', methods=['POST'])
+# def toggle_solenoid_1():
+#     solenoid_status['solenoid_1_status'] = 1 if solenoid_status['solenoid_1_status'] == 0 else 0
+#     logger.info("Toggled solenoid_1_status to %d", solenoid_status['solenoid_1_status'])
+#     socketio.emit('update_data', {**latest_data, **solenoid_status})
+#     return jsonify({"solenoid_1_status": solenoid_status['solenoid_1_status']})
+
+# @app.route('/toggle_solenoid_2', methods=['POST'])
+# def toggle_solenoid_2():
+#     solenoid_status['solenoid_2_status'] = 1 if solenoid_status['solenoid_2_status'] == 0 else 0
+#     logger.info("Toggled solenoid_2_status to %d", solenoid_status['solenoid_2_status'])
+#     socketio.emit('update_data', {**latest_data, **solenoid_status})
+#     return jsonify({"solenoid_2_status": solenoid_status['solenoid_2_status']})
+
+# @app.route('/test', methods=['POST'])
+# def test():
+#     # Log the current device status
+#     log_data = {"latest_data": latest_data, "solenoid_status": solenoid_status}
+#     logger.info("Current device status: %s", log_data)
+
+#     # Return success response
+#     return jsonify({"status": "success", "log_data": log_data}), 200
+
+# # New routes for the empty pages
+# @app.route('/conditions')
+# def conditions():
+#     return render_template('conditions.html')
+
+# @app.route('/compuland')
+# def compuland():
+#     return render_template('compuland.html')
+
+# @app.route('/devices')
+# def devices():
+#     return render_template('devices.html')
+
+# if __name__ == '__main__':
+#     socketio.run(app, debug=True, host='0.0.0.0')
+
+
+# ------------------------------------------------------------
+# UPDATE TO ADD POSTGRE 
+
 import eventlet
 eventlet.monkey_patch()
 
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO
+from flask_sqlalchemy import SQLAlchemy
 import logging
+import os
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode='eventlet')
@@ -115,6 +215,24 @@ socketio = SocketIO(app, async_mode='eventlet')
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Configure SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres://u6t8cp76dbgcpj:pc572ed8ec5d57bce5b4080bc59a8b0528c495097f1a19dd839fd0b6331e669f4@ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d22ekdqd6mc7g9')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# Define models (example)
+class Trigger(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    temperature = db.Column(db.Float)
+    humidity = db.Column(db.Float)
+    time = db.Column(db.String(5))  # Format: HH:MM
+    solenoid_1_action = db.Column(db.Boolean)
+    solenoid_2_action = db.Column(db.Boolean)
+
+    def __repr__(self):
+        return f'<Trigger {self.id}>'
 
 # Global variables to store the latest device data
 latest_data = {"temperature": None, "humidity": None}
@@ -195,6 +313,4 @@ def devices():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
-
-
 
