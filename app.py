@@ -363,6 +363,7 @@ class Trigger(db.Model):
     humidity_comparison = db.Column(db.String, nullable=True)
     time = db.Column(db.Time, nullable=True)
     solenoid = db.Column(db.String, nullable=True)
+    action = db.Column(db.String, nullable=True)  # 'open' or 'close'
 
 # Function to create tables
 def create_tables():
@@ -453,7 +454,7 @@ def test():
     # Return success response
     return jsonify({"status": "success", "log_data": log_data}), 200
 
-# New routes for the empty pages
+# New routes for the pages
 @app.route('/conditions')
 def conditions():
     return render_template('conditions.html')
@@ -477,7 +478,8 @@ def add_trigger():
         humidity=data.get('humidity'),
         humidity_comparison=data.get('humidity_comparison'),
         time=data.get('time'),
-        solenoid=data.get('solenoid')
+        solenoid=data.get('solenoid'),
+        action=data.get('action')  # 'open' or 'close'
     )
 
     try:
@@ -519,7 +521,8 @@ def get_triggers():
             'humidity': trigger.humidity,
             'humidity_comparison': trigger.humidity_comparison,
             'time': str(trigger.time),
-            'solenoid': trigger.solenoid
+            'solenoid': trigger.solenoid,
+            'action': trigger.action
         }
         for trigger in triggers
     ]
@@ -528,6 +531,7 @@ def get_triggers():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
 
 
 # ----------------------------------------------------------

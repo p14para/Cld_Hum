@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const solenoid2Button = document.getElementById('solenoid2-button');
     const testButton = document.getElementById('test-button');
 
+    // Elements for the conditions page
+    const triggerForm = document.getElementById('trigger-form');
+    const triggerList = document.getElementById('trigger-list');
+
     // Update the dashboard with new data
     socket.on('update_data', function(data) {
         if (temperatureElement && data.temperature !== null) {
@@ -58,5 +62,98 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => console.error('Error sending test request:', error));
         });
+    }
+
+    // Handle condition form submission
+    if (triggerForm) {
+        triggerForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(triggerForm);
+            const data = Object.fromEntries(formData.entries());
+
+            // Add action to handle solenoid actions
+            const solenoidAction = data['solenoid-action'];
+            let solenoid;
+            if (solenoidAction) {
+                solenoid = solenoidAction.split('_')[1];
+                data['solenoid'] = solenoid;
+                data['action'] = solenoidAction.split('_')[0]; // 'open' or 'close'
+            }
+
+            try {
+                const response = await fetch('/add_trigger', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Συνθήκη προστέθηκε επιτυχώς!');
+                    loadTriggers();
+                } else {
+                    alert('Σφάλμα κατά την προσθήκη συνθήκης: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error adding trigger:', error);
+            }
+        });
+    }
+
+    // Load active triggers
+    async function loadTriggers() {
+        try {
+            const response = await fetch('/get_triggers');
+            const data = await response.json();
+
+            triggerList.innerHTML = '';
+
+            data.triggers.forEach(trigger => {
+                const li = document.createElement('li');
+                li.textContent = `Συνθήκη ${trigger.id}: Θερμοκρασία ${trigger.temperature_comparison} ${trigger.temperature}, Υγρασία ${trigger.humidity_comparison} ${trigger.humidity}, Ώρα ${trigger.time}, Σολενοειδές ${trigger.solenoid}`;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Διαγραφή';
+                deleteButton.addEventListener('click', () => deleteTrigger(trigger.id));
+
+                li.appendChild(deleteButton);
+                triggerList.appendChild(li);
+            });
+        } catch (error) {
+            console.error('Error loading triggers:', error);
+        }
+    }
+
+    // Delete trigger
+    async function deleteTrigger(id) {
+        try {
+            const response = await fetch('/delete_trigger', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Συνθήκη διαγράφηκε επιτυχώς!');
+                loadTriggers();
+            } else {
+                alert('Σφάλμα κατά τη διαγραφή συνθήκης: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error deleting trigger:', error);
+        }
+    }
+
+    // Load triggers on page load
+    if (triggerList) {
+        loadTriggers();
     }
 });
