@@ -335,7 +335,7 @@ from sqlalchemy.exc import OperationalError
 
 # Flask app setup
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'your_postgresql_connection_string'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://u6t8cp76dbgcpj:pc572ed8ec5d57bce5b4080bc59a8b0528c495097f1a19dd839fd0b6331e669f4@ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d22ekdqd6mc7g9'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Setup Flask-SQLAlchemy
