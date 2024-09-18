@@ -50,94 +50,79 @@
                         <option value="=">=</option>
                     </select>
 
-                    <label for="time">Ώρα:</label>
+                    <label for="time">Ώρα (HH:MM):</label>
                     <input type="time" id="time" name="time">
 
-                    <label for="solenoid">Σολενοειδές:</label>
+                    <label for="solenoid">Ενέργεια Συσκευής:</label>
                     <select id="solenoid" name="solenoid">
-                        <option value="1">Σολενοειδές 1</option>
-                        <option value="2">Σολενοειδές 2</option>
+                        <option value="">Επιλογή...</option>
+                        <option value="solenoid_1_open">Ανοίξτε Πύλη 1</option>
+                        <option value="solenoid_1_close">Κλείστε Πύλη 1</option>
+                        <option value="solenoid_2_open">Ανοίξτε Πύλη 2</option>
+                        <option value="solenoid_2_close">Κλείστε Πύλη 2</option>
                     </select>
 
-                    <button type="submit">Προσθήκη</button>
+                    <button type="submit">Προσθήκη Συνθήκης</button>
                 </form>
             </div>
-
-            <div class="trigger-list">
+            <div class="triggers-container">
                 <h2>Ενεργές Συνθήκες</h2>
-                <ul id="trigger-list"></ul>
+                <ul id="triggers-list">
+                    <!-- Dynamic list of triggers will be inserted here -->
+                </ul>
             </div>
         </div>
     </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function () {
+            const triggersList = document.getElementById('triggers-list');
             const form = document.getElementById('trigger-form');
-            const triggerList = document.getElementById('trigger-list');
 
-            form.addEventListener('submit', async (event) => {
+            // Function to add a new trigger to the list
+            function addTrigger(time, temperature, temperatureComparison, humidity, humidityComparison, solenoidAction) {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="trigger-details">
+                        <p>Θερμοκρασία: ${temperature} ${temperatureComparison || ''} °C</p>
+                        <p>Υγρασία: ${humidity} ${humidityComparison || ''} %</p>
+                        <p>Ώρα: ${time || 'Κάθε στιγμή'}</p>
+                        <p>Ενέργεια Συσκευής: ${solenoidAction}</p>
+                        <button class="delete-trigger-button">Διαγραφή</button>
+                    </div>
+                `;
+                triggersList.appendChild(li);
+
+                // Add event listener for delete button
+                li.querySelector('.delete-trigger-button').addEventListener('click', function () {
+                    triggersList.removeChild(li);
+                });
+            }
+
+            // Handle form submission
+            form.addEventListener('submit', function (event) {
                 event.preventDefault();
 
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
+                const temperature = form.temperature.value;
+                const temperatureComparison = form['temperature-comparison'].value;
+                const humidity = form.humidity.value;
+                const humidityComparison = form['humidity-comparison'].value;
+                const time = form.time.value;
+                const solenoidAction = form.solenoid.value;
 
-                const response = await fetch('/add_trigger', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('Συνθήκη προστέθηκε επιτυχώς!');
-                    loadTriggers();
-                } else {
-                    alert('Σφάλμα κατά την προσθήκη συνθήκης: ' + result.message);
+                if (temperature || humidity || solenoidAction) {
+                    addTrigger(time, temperature, temperatureComparison, humidity, humidityComparison, solenoidAction);
+                    form.reset();
                 }
             });
 
-            async function loadTriggers() {
-                const response = await fetch('/get_triggers');
-                const data = await response.json();
-
-                triggerList.innerHTML = '';
-
-                data.triggers.forEach(trigger => {
-                    const li = document.createElement('li');
-                    li.textContent = `Συνθήκη ${trigger.id}: Θερμοκρασία ${trigger.temperature_comparison} ${trigger.temperature}, Υγρασία ${trigger.humidity_comparison} ${trigger.humidity}, Ώρα ${trigger.time}, Σολενοειδές ${trigger.solenoid}`;
-
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Διαγραφή';
-                    deleteButton.addEventListener('click', () => deleteTrigger(trigger.id));
-
-                    li.appendChild(deleteButton);
-                    triggerList.appendChild(li);
+            // Fetch existing triggers from the server on page load
+            fetch('/get_triggers')
+                .then(response => response.json())
+                .then(data => {
+                    data.triggers.forEach(trigger => {
+                        addTrigger(trigger.time, trigger.temperature, trigger.temperature_comparison, trigger.humidity, trigger.humidity_comparison, trigger.solenoid_action);
+                    });
                 });
-            }
-
-            async function deleteTrigger(id) {
-                const response = await fetch('/delete_trigger', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('Συνθήκη διαγράφηκε επιτυχώς!');
-                    loadTriggers();
-                } else {
-                    alert('Σφάλμα κατά τη διαγραφή συνθήκης: ' + result.message);
-                }
-            }
-
-            loadTriggers();
         });
     </script>
 </body>
