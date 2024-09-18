@@ -472,6 +472,20 @@ def add_trigger():
     data = request.json
     logger.info("Adding trigger: %s", data)
 
+    # Validate if trigger already exists
+    existing_trigger = Trigger.query.filter_by(
+        temperature=data.get('temperature'),
+        temperature_comparison=data.get('temperature_comparison'),
+        humidity=data.get('humidity'),
+        humidity_comparison=data.get('humidity_comparison'),
+        time=data.get('time'),
+        solenoid=data.get('solenoid'),
+        action=data.get('action')
+    ).first()
+    
+    if existing_trigger:
+        return jsonify({"success": False, "message": "Trigger already exists"}), 400
+
     trigger = Trigger(
         temperature=data.get('temperature'),
         temperature_comparison=data.get('temperature_comparison'),
@@ -520,7 +534,7 @@ def get_triggers():
             'temperature_comparison': trigger.temperature_comparison,
             'humidity': trigger.humidity,
             'humidity_comparison': trigger.humidity_comparison,
-            'time': str(trigger.time),
+            'time': str(trigger.time) if trigger.time else '',
             'solenoid': trigger.solenoid,
             'action': trigger.action
         }
@@ -531,6 +545,7 @@ def get_triggers():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
 
 
 
