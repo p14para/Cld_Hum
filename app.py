@@ -327,10 +327,11 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_socketio import SocketIO
 import logging
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from sqlalchemy.exc import OperationalError
 
 # Flask app setup
@@ -338,8 +339,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://u6t8cp76dbgcpj:pc572ed8ec5d57bce5b4080bc59a8b0528c495097f1a19dd839fd0b6331e669f4@ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d22ekdqd6mc7g9'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Setup Flask-SQLAlchemy
+# Setup Flask-SQLAlchemy and Flask-Migrate
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 socketio = SocketIO(app, async_mode='eventlet')
 
 # Configure logging
@@ -364,21 +366,11 @@ class Trigger(db.Model):
     time = db.Column(db.Time, nullable=True)
     solenoid = db.Column(db.String, nullable=True)
 
-# Function to create tables
-def create_tables():
-    try:
-        db.create_all()
-        logger.info("Tables created successfully")
-    except OperationalError as e:
-        logger.error(f"An error occurred while creating tables: {e}")
-
-# Create tables if not exists
-create_tables()
-
 # Global variables to store the latest device data
 latest_data = {"temperature": None, "humidity": None}
 solenoid_status = {"solenoid_1_status": 0, "solenoid_2_status": 0}
 
+# Routes and functionality
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
@@ -386,21 +378,21 @@ def webhook():
     if data and 'data' in data and 'payload' in data['data']:
         payload = data['data']['payload']
         logger.info("Payload received: %s", payload)
-        
+
         # Update the latest data
         new_temperature = payload.get('temperature')
         new_humidity = payload.get('humidity')
         logger.info("Updating temperature to %s and humidity to %s", new_temperature, new_humidity)
-        
+
         latest_data['temperature'] = new_temperature
         latest_data['humidity'] = new_humidity
-        
+
         # Update solenoid status only if present in payload
         new_solenoid_1_status = int(payload.get('solenoid_1_status', solenoid_status['solenoid_1_status']))
         new_solenoid_2_status = int(payload.get('solenoid_2_status', solenoid_status['solenoid_2_status']))
-        
+
         logger.info("Updating solenoid_1_status to %d and solenoid_2_status to %d", new_solenoid_1_status, new_solenoid_2_status)
-        
+
         solenoid_status['solenoid_1_status'] = new_solenoid_1_status
         solenoid_status['solenoid_2_status'] = new_solenoid_2_status
 
@@ -488,3 +480,4 @@ def get_triggers():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
+
