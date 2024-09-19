@@ -4,71 +4,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Διαχειριστής Συσκευών</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <title>Συστήματα Compuland</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <aside>
-            <ul>
-                <li><a href="/">Αρχική</a></li>
-                <li><a href="/conditions">Συνθήκες</a></li>
-                <li><a href="/compuland">Compuland Α.Ε.</a></li>
-                <li><a href="/devices">Συσκευές</a></li>
-            </ul>
-        </aside>
-        <main>
-            <div class="dashboard">
-                <div class="card">
-                    <h2>Θερμοκρασία</h2>
-                    <p id="temperature">{{ temperature }}</p>
-                </div>
-                <div class="card">
-                    <h2>Υγρασία</h2>
-                    <p id="humidity">{{ humidity }}</p>
-                </div>
-                <div class="card">
-                    <h2>Κατάσταση Σολενοειδούς 1</h2>
-                    <p id="solenoid_1_status">{{ solenoid_1_status }}</p>
-                </div>
-                <div class="card">
-                    <h2>Κατάσταση Σολενοειδούς 2</h2>
-                    <p id="solenoid_2_status">{{ solenoid_2_status }}</p>
-                </div>
-                <div class="buttons">
-                    <button id="toggle_solenoid_1">Εναλλαγή Σολενοειδούς 1</button>
-                    <button id="toggle_solenoid_2">Εναλλαγή Σολενοειδούς 2</button>
+    <div class="sidebar">
+        <h2>Πίνακας Ελέγχου</h2>
+        <ul>
+            <li><a href="/">Πίνακας Ελέγχου</a></li>
+            <li><a href="/conditions">Συνθήκες</a></li>
+            <li><a href="/compuland">Compuland Α.Ε.</a></li>
+            <li><a href="/devices">Συσκευές</a></li>
+        </ul>
+    </div>
+    <div class="content">
+        <div class="container">
+            <h1>Πίνακας Δεδομένων Συσκευής</h1>
+            <div class="card">
+                <h2>Θερμοκρασία</h2>
+                <div class="data">
+                    <span id="temperature">N/A</span>
+                    <span class="unit">°C</span>
                 </div>
             </div>
-        </main>
+            <div class="card">
+                <h2>Υγρασία</h2>
+                <div class="data">
+                    <span id="humidity">N/A</span>
+                    <span class="unit">%</span>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Πύλη 1</h2>
+                <div class="data">
+                    <button id="solenoid1-button" class="solenoid-button">Ανοικτή</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Πύλη 2</h2>
+                <div class="data">
+                    <button id="solenoid2-button" class="solenoid-button">Ανοικτή</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Test</h2>
+                <div class="data">
+                    <button id="test-button" class="test-button">Test</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
+        // Initialize Socket.IO
         const socket = io();
 
+        // Handle updates from the server
         socket.on('update_data', function (data) {
-            document.getElementById('temperature').textContent = data.temperature !== undefined ? data.temperature : 'N/A';
-            document.getElementById('humidity').textContent = data.humidity !== undefined ? data.humidity : 'N/A';
-            document.getElementById('solenoid_1_status').textContent = data.solenoid_1_status !== undefined ? data.solenoid_1_status : 'N/A';
-            document.getElementById('solenoid_2_status').textContent = data.solenoid_2_status !== undefined ? data.solenoid_2_status : 'N/A';
+            if (data.temperature !== undefined) {
+                document.getElementById('temperature').textContent = data.temperature;
+            }
+            if (data.humidity !== undefined) {
+                document.getElementById('humidity').textContent = data.humidity;
+            }
+            if (data.solenoid_1_status !== undefined) {
+                const solenoid1Button = document.getElementById('solenoid1-button');
+                solenoid1Button.textContent = data.solenoid_1_status === 1 ? 'Ανοικτή' : 'Κλειστή';
+            }
+            if (data.solenoid_2_status !== undefined) {
+                const solenoid2Button = document.getElementById('solenoid2-button');
+                solenoid2Button.textContent = data.solenoid_2_status === 1 ? 'Ανοικτή' : 'Κλειστή';
+            }
         });
 
-        document.getElementById('toggle_solenoid_1').addEventListener('click', function () {
+        // Button event listeners
+        document.getElementById('solenoid1-button').addEventListener('click', function () {
             fetch('/toggle_solenoid_1', { method: 'POST' })
                 .then(response => response.json())
-                .then(data => {
-                    console.log('Solenoid 1 toggled:', data);
-                });
+                .then(data => console.log('Solenoid 1 toggled:', data));
         });
 
-        document.getElementById('toggle_solenoid_2').addEventListener('click', function () {
+        document.getElementById('solenoid2-button').addEventListener('click', function () {
             fetch('/toggle_solenoid_2', { method: 'POST' })
                 .then(response => response.json())
-                .then(data => {
-                    console.log('Solenoid 2 toggled:', data);
-                });
+                .then(data => console.log('Solenoid 2 toggled:', data));
+        });
+
+        document.getElementById('test-button').addEventListener('click', function () {
+            fetch('/test', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => console.log('Test button pressed:', data));
         });
     </script>
 </body>
