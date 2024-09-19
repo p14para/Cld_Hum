@@ -27,23 +27,30 @@
                 <h2>Προσθήκη Συνθήκης</h2>
                 <form id="trigger-form">
                     <label for="temperature">Θερμοκρασία:</label>
-                    <input type="number" id="temperature" name="temperature" required>
+                    <input type="number" id="temperature" name="temperature">
+
                     <label for="temperature_comparison">Σύγκριση Θερμοκρασίας:</label>
-                    <select id="temperature_comparison" name="temperature_comparison" required>
+                    <select id="temperature_comparison" name="temperature_comparison">
+                        <option value="">Επιλογή...</option>
                         <option value="greater_than">Μεγαλύτερη από</option>
                         <option value="less_than">Μικρότερη από</option>
                         <option value="equal_to">Ίση με</option>
                     </select>
+
                     <label for="humidity">Υγρασία:</label>
-                    <input type="number" id="humidity" name="humidity" required>
+                    <input type="number" id="humidity" name="humidity">
+
                     <label for="humidity_comparison">Σύγκριση Υγρασίας:</label>
-                    <select id="humidity_comparison" name="humidity_comparison" required>
+                    <select id="humidity_comparison" name="humidity_comparison">
+                        <option value="">Επιλογή...</option>
                         <option value="greater_than">Μεγαλύτερη από</option>
                         <option value="less_than">Μικρότερη από</option>
                         <option value="equal_to">Ίση με</option>
                     </select>
+
                     <label for="time">Ώρα (προαιρετικό):</label>
                     <input type="time" id="time" name="time">
+
                     <label for="solenoid-action">Δράση Πύλης:</label>
                     <select id="solenoid-action" name="solenoid-action">
                         <option value="">Επιλογή...</option>
@@ -52,6 +59,7 @@
                         <option value="open_2">Άνοιγμα Πύλη 2</option>
                         <option value="close_2">Κλείσιμο Πύλη 2</option>
                     </select>
+
                     <button type="submit">Προσθήκη</button>
                 </form>
             </div>
@@ -109,7 +117,7 @@
 
                 data.triggers.forEach(trigger => {
                     const li = document.createElement('li');
-                    li.textContent = `Συνθήκη ${trigger.id}: Θερμοκρασία ${trigger.temperature_comparison} ${trigger.temperature}, Υγρασία ${trigger.humidity_comparison} ${trigger.humidity}, Ώρα ${trigger.time}, Σολενοειδές ${trigger.solenoid}`;
+                    li.textContent = `Συνθήκη ${trigger.id}: Θερμοκρασία ${trigger.temperature_comparison} ${trigger.temperature}, Υγρασία ${trigger.humidity_comparison} ${trigger.humidity}, Ώρα ${trigger.time || 'N/A'}, Σολενοειδές ${trigger.solenoid}`;
 
                     const deleteButton = document.createElement('button');
                     deleteButton.textContent = 'Διαγραφή';

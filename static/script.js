@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             data.triggers.forEach(trigger => {
                 const li = document.createElement('li');
-                li.textContent = `Συνθήκη ${trigger.id}: Θερμοκρασία ${trigger.temperature_comparison} ${trigger.temperature}, Υγρασία ${trigger.humidity_comparison} ${trigger.humidity}, Ώρα ${trigger.time}, Σολενοειδές ${trigger.solenoid}`;
+                li.textContent = `Συνθήκη ${trigger.id}: Θερμοκρασία ${trigger.temperature_comparison} ${trigger.temperature}, Υγρασία ${trigger.humidity_comparison} ${trigger.humidity}, Ώρα ${trigger.time || 'N/A'}, Σολενοειδές ${trigger.solenoid}`;
 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Διαγραφή';
