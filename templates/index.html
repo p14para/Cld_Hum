@@ -57,47 +57,6 @@
             </div>
         </div>
     </div>
-    <script>
-        // Initialize Socket.IO
-        const socket = io();
-
-        // Handle updates from the server
-        socket.on('update_data', function (data) {
-            if (data.temperature !== undefined) {
-                document.getElementById('temperature').textContent = data.temperature;
-            }
-            if (data.humidity !== undefined) {
-                document.getElementById('humidity').textContent = data.humidity;
-            }
-            if (data.solenoid_1_status !== undefined) {
-                const solenoid1Button = document.getElementById('solenoid1-button');
-                solenoid1Button.textContent = data.solenoid_1_status === 1 ? 'Ανοικτή' : 'Κλειστή';
-            }
-            if (data.solenoid_2_status !== undefined) {
-                const solenoid2Button = document.getElementById('solenoid2-button');
-                solenoid2Button.textContent = data.solenoid_2_status === 1 ? 'Ανοικτή' : 'Κλειστή';
-            }
-        });
-
-        // Button event listeners
-        document.getElementById('solenoid1-button').addEventListener('click', function () {
-            fetch('/toggle_solenoid_1', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => console.log('Solenoid 1 toggled:', data));
-        });
-
-        document.getElementById('solenoid2-button').addEventListener('click', function () {
-            fetch('/toggle_solenoid_2', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => console.log('Solenoid 2 toggled:', data));
-        });
-
-        document.getElementById('test-button').addEventListener('click', function () {
-            fetch('/test', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => console.log('Test button pressed:', data));
-        });
-    </script>
 </body>
 
 </html>
