@@ -419,8 +419,6 @@ def webhook():
             solenoid_2_status=new_solenoid_2_status
         )
         try:
-            # Delete previous record
-            DeviceData.query.delete()
             db.session.add(device_data)
             db.session.commit()
         except Exception as e:
@@ -431,19 +429,7 @@ def webhook():
 
 @app.route('/')
 def index():
-    latest_status = DeviceData.query.order_by(DeviceData.timestamp.desc()).first()
-    if latest_status:
-        return render_template('index.html', 
-                               temperature=latest_status.temperature,
-                               humidity=latest_status.humidity,
-                               solenoid_1_status=latest_status.solenoid_1_status,
-                               solenoid_2_status=latest_status.solenoid_2_status)
-    else:
-        return render_template('index.html', 
-                               temperature='N/A',
-                               humidity='N/A',
-                               solenoid_1_status='N/A',
-                               solenoid_2_status='N/A')
+    return render_template('index.html')
 
 @app.route('/toggle_solenoid_1', methods=['POST'])
 def toggle_solenoid_1():
@@ -548,17 +534,16 @@ def get_triggers():
             'temperature_comparison': trigger.temperature_comparison,
             'humidity': trigger.humidity,
             'humidity_comparison': trigger.humidity_comparison,
-            'time': trigger.time,
+            'time': str(trigger.time) if trigger.time else '',
             'solenoid': trigger.solenoid,
             'action': trigger.action
         }
         for trigger in triggers
     ]
-    return jsonify(trigger_list)
+    logger.info("Fetching triggers")
+    return jsonify({"triggers": trigger_list})
 
-# Run the app
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
-
+    socketio.run(app, debug=True, host='0.0.0.0')
 
 # ----------------------------------------------------------
